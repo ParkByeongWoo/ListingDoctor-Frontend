@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Listing Doctor — Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Pretendard:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #111827;
+    --bg3: #1a2236;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf2;
+    --text2: #8892a4;
+    --text3: #4a5568;
+    --accent: #4f8ef7;
+    --accent2: #7c3aed;
+    --success: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Pretendard', -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* 레이아웃 */
+  .layout { display: flex; min-height: 100vh; }
+
+  /* 사이드바 */
+  .sidebar {
+    width: 220px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo .logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-logo .logo-sub {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+    margin-top: 2px;
+  }
+
+  .nav { padding: 16px 12px; flex: 1; }
+
+  .nav-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 0 8px;
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+
+  .nav-label:first-child { margin-top: 0; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 13px;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: rgba(79,142,247,0.12); color: var(--accent); }
+
+  .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  /* 메인 */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 탑바 */
+  .topbar {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg2);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-title {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .badge {
+    font-size: 11px;
+    font-family: var(--mono);
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(79,142,247,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(79,142,247,0.2);
+  }
+
+  .badge.dev { background: rgba(245,158,11,0.1); color: var(--warn); border-color: rgba(245,158,11,0.2); }
+
+  .btn {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 12px;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .btn:hover { background: rgba(255,255,255,0.06); border-color: var(--border2); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #6b9ef8; }
+
+  /* 콘텐츠 */
+  .content { padding: 28px; }
+
+  /* 스탯 카드 */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .stat-card.blue::before { background: var(--accent); }
+  .stat-card.green::before { background: var(--success); }
+  .stat-card.amber::before { background: var(--warn); }
+  .stat-card.purple::before { background: var(--accent2); }
+
+  .stat-label {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 6px;
+  }
+
+  /* 섹션 헤더 */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .section-meta {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  /* 필터 바 */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .filter-bar input, .filter-bar select {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 7px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .filter-bar input:focus, .filter-bar select:focus {
+    border-color: var(--accent);
+  }
+
+  .filter-bar input { min-width: 220px; }
+  .filter-bar select { cursor: pointer; }
+
+  /* 테이블 */
+  .table-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tbody tr {
+    transition: background 0.1s;
+    cursor: pointer;
+  }
+
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  /* 상태 배지 */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-family: var(--mono);
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .status::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+  }
+
+  .status.good { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+  .status.good::before { background: var(--success); }
+  .status.warn { background: rgba(245,158,11,0.1); color: var(--warn); border: 1px solid rgba(245,158,11,0.2); }
+  .status.warn::before { background: var(--warn); }
+  .status.danger { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+  .status.danger::before { background: var(--danger); }
+
+  /* 점수 바 */
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .score-track {
+    flex: 1;
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+
+  .score-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .score-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  /* 플랫폼 태그 */
+  .platform-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+
+  /* 모달 */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 760px;
+    padding: 28px;
+    position: relative;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .modal-title { font-size: 16px; font-weight: 500; }
+  .modal-sub { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-top: 4px; }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.15s;
+  }
+
+  .modal-close:hover { color: var(--text); }
+
+  .modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .modal-field {
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .modal-field-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .modal-field-value {
+    font-size: 13px;
+    color: var(--text);
+    word-break: break-all;
+  }
+
+  .modal-section-title {
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 20px 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .radar-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0;
+  }
+
+  /* 로딩 */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    color: var(--text3);
+    font-family: var(--mono);
+    font-size: 13px;
+    gap: 10px;
+  }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty {
+    padding: 60px;
+    text-align: center;
+    color: var(--text3);
+    font-size: 13px;
+    font-family: var(--mono);
+  }
+
+  /* 페이지네이션 */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  .page-btns { display: flex; gap: 6px; }
+
+  .page-btn {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .page-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* 탭 */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text2);
+    transition: all 0.15s;
+    border: none;
+    background: none;
+    font-family: var(--sans);
+  }
+
+  .tab.active {
+    background: var(--bg2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  /* 유저 테이블 */
+  .usage-chart {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 120px;
+    margin-top: 16px;
+  }
+
+  .chart-bar-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .chart-bar {
+    width: 100%;
+    background: rgba(79,142,247,0.3);
+    border-radius: 4px 4px 0 0;
+    border: 1px solid rgba(79,142,247,0.4);
+    transition: all 0.4s ease;
+    min-height: 4px;
+    cursor: pointer;
+  }
+
+  .chart-bar:hover { background: rgba(79,142,247,0.6); }
+
+  .chart-bar-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+  }
+
+  .chart-bar-val {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text2);
+  }
+
+  /* 알림 토스트 */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    z-index: 999;
+    display: none;
+    gap: 8px;
+    align-items: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .toast.show { display: flex; }
+
+  /* 반응형 */
+  @media (max-width: 1200px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- 사이드바 -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">💊 Listing Doctor</div>
+      <div class="logo-sub">admin console</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">메인</div>
+      <div class="nav-item active" onclick="showTab('dashboard')">
+        <span class="icon">▦</span> 대시보드
+      </div>
+      <div class="nav-item" onclick="showTab('analyses')">
+        <span class="icon">◈</span> 분석 이력
+      </div>
+      <div class="nav-item" onclick="showTab('generations')">
+        <span class="icon">✦</span> 생성 이력
+      </div>
+      <div class="nav-label">설정</div>
+      <div class="nav-item" onclick="showTab('guidelines')">
+        <span class="icon">◐</span> 가이드라인 관리
+      </div>
+      <div class="nav-item" onclick="showTab('users')">
+        <span class="icon">◉</span> 사용자
+      </div>
+      <div class="nav-item" onclick="showTab('usage')">
+        <span class="icon">◎</span> 사용량 로그
+      </div>
+      <div class="nav-label">시스템</div>
+      <div class="nav-item" onclick="openExternal('https://console.firebase.google.com/project/listingdoctor-d9b42/firestore')">
+        <span class="icon">⊞</span> Firestore
+      </div>
+      <div class="nav-item" onclick="openExternal('https://console.cloud.google.com/run/detail/asia-northeast3/listingdoctor-api/logs?project=listing-doctor-493401')">
+        <span class="icon">⊟</span> Cloud Run 로그
+      </div>
+      <div class="nav-item" onclick="openExternal('https://listingdoctor-d9b42.web.app')">
+        <span class="icon">↗</span> 서비스 바로가기
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      v1.0.0 · aicon_dev
+    </div>
+  </aside>
+
+  <!-- 메인 -->
+  <div class="main">
+    <!-- 탑바 -->
+    <header class="topbar">
+      <div class="topbar-title" id="pageTitle">대시보드</div>
+      <div class="topbar-right">
+        <span class="badge dev">DEV</span>
+        <span class="badge" id="lastUpdated">—</span>
+        <button class="btn primary" onclick="refreshAll()">↺ 새로고침</button>
+      </div>
+    </header>
+
+    <!-- 콘텐츠 -->
+    <div class="content">
+
+      <!-- ===== 대시보드 탭 ===== -->
+      <div id="tab-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-label">TOTAL ANALYSES</div>
+            <div class="stat-value" id="stat-total">—</div>
+            <div class="stat-sub">전체 분석 횟수</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">TOTAL USERS</div>
+            <div class="stat-value" id="stat-users">—</div>
+            <div class="stat-sub">등록 사용자</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-label">AVG SCORE</div>
+            <div class="stat-value" id="stat-avg">—</div>
+            <div class="stat-sub">평균 진단 점수</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-label">TOTAL COST</div>
+            <div class="stat-value" id="stat-cost">—</div>
+            <div class="stat-sub">이번 달 비용 (₩)</div>
+          </div>
+        </div>
+
+        <!-- 일별 사용량 차트 -->
+        <div class="usage-chart">
+          <div class="section-header">
+            <div class="section-title">일별 분석 현황</div>
+            <div class="section-meta" id="chartRange">최근 14일</div>
+          </div>
+          <div class="chart-bars" id="dailyChart">
+            <div class="loading"><div class="spinner"></div> 로딩 중...</div>
+          </div>
+        </div>
+
+        <!-- 최근 분석 -->
+        <div class="section-header">
+          <div class="section-title">최근 분석</div>
+          <div class="section-meta" id="recentCount">—건</div>
+        </div>
+        <div class="table-wrap" id="recentTable">
+          <div class="loading"><div class="spinner"></div> Firestore 로딩 중...</div>
+        </div>
+      </div>
+
+      <!-- ===== 분석 이력 탭 ===== -->
+      <div id="tab-analyses" style="display:none">
+        <div class="filter-bar">
+          <input type="text" id="searchInput" placeholder="상품명, session_id 검색..." oninput="filterAnalyses()">
+          <select id="platformFilter" onchange="filterAnalyses()">
+            <option value="">전체 플랫폼</option>
+            <option value="amazon_us">Amazon US</option>
+            <option value="amazon_jp">Amazon JP</option>
+            <option value="shopee">Shopee</option>
+            <option value="lazada">Lazada</option>
+            <option value="rakuten">라쿠텐</option>
+          </select>
+          <select id="statusFilter" onchange="filterAnalyses()">
+            <option value="">전체 상태</option>
+            <option value="위험">위험</option>
+            <option value="주의">주의</option>
+            <option value="양호">양호</option>
+          </select>
+          <select id="sortFilter" onchange="filterAnalyses()">
+            <option value="newest">최신순</option>
+            <option value="oldest">오래된순</option>
+            <option value="score_asc">점수 낮은순</option>
+            <option value="score_desc">점수 높은순</option>
+          </select>
+        </div>
+        <div class="table-wrap" id="analysesTable">
+          <div class="loading"><div class="spinner"></div> 로딩 중...</div>
+        </div>
+        <div class="pagination" id="analysesPagination" style="display:none">
+          <span id="pageInfo">1-20 / 0건</span>
+          <div class="page-btns" id="pageBtns"></div>
+        </div>
+      </div>
+
+      <!-- ===== 생성 이력 탭 ===== -->
+      <div id="tab-generations" style="display:none">
+        <div class="filter-bar">
+          <input type="text" id="searchGenerationInput" placeholder="상품명, session_id 검색..." oninput="filterGenerations()">
+          <select id="platformGenerationFilter" onchange="filterGenerations()">
+            <option value="">전체 플랫폼</option>
+            <option value="amazon_us">Amazon US</option>
+            <option value="amazon_jp">Amazon JP</option>
+            <option value="shopee">Shopee</option>
+            <option value="lazada">Lazada</option>
+            <option value="rakuten">라쿠텐</option>
+          </select>
+          <select id="sortGenerationFilter" onchange="filterGenerations()">
+            <option value="newest">최신순</option>
+            <option value="oldest">오래된순</option>
+            <option value="score_asc">점수 낮은순</option>
+            <option value="score_desc">점수 높은순</option>
+          </select>
+        </div>
+        <div class="table-wrap" id="generationsTable">
+          <div class="loading"><div class="spinner"></div> 로딩 중...</div>
+        </div>
+        <div class="pagination" id="generationsPagination" style="display:none">
+          <span id="generationPageInfo">1-20 / 0건</span>
+          <div class="page-btns" id="generationPageBtns"></div>
+        </div>
+      </div>
+
+      <!-- ===== 가이드라인 관리 탭 ===== -->
+      <div id="tab-guidelines" style="display:none">
+        <div style="display:flex;gap:20px;height:calc(100vh - 200px)">
+          <!-- 왼쪽: 플랫폼 목록 -->
+          <div style="width:240px;background:var(--bg2);border-radius:12px;padding:16px;overflow-y:auto">
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">플랫폼 선택</div>
+            <div id="guidelinePlatformList">
+              <div class="loading"><div class="spinner"></div> 로딩 중...</div>
+            </div>
+          </div>
+
+          <!-- 오른쪽: 에디터 -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:16px">
+            <!-- 헤더 -->
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--bg2);border-radius:12px">
+              <div>
+                <div style="font-size:16px;font-weight:600;color:var(--text)" id="guidelinePlatformName">플랫폼을 선택하세요</div>
+                <div style="font-size:12px;color:var(--text3);margin-top:4px" id="guidelineVersion">—</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button onclick="resetGuideline()" style="padding:8px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);cursor:pointer;font-size:13px">취소</button>
+                <button onclick="saveGuideline()" style="padding:8px 16px;background:var(--primary);border:none;border-radius:8px;color:white;cursor:pointer;font-weight:500;font-size:13px">저장</button>
+              </div>
+            </div>
+
+            <!-- JSON 에디터 -->
+            <div style="flex:1;background:var(--bg2);border-radius:12px;padding:16px;overflow:hidden;display:flex;flex-direction:column">
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">가이드라인 JSON</div>
+              <textarea id="guidelineEditor" style="flex:1;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;color:var(--text);font-family:var(--mono);font-size:12px;line-height:1.6;resize:none" placeholder="플랫폼을 선택하면 가이드라인이 표시됩니다"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 사용자 탭 ===== -->
+      <div id="tab-users" style="display:none">
+        <div class="table-wrap" id="usersTable">
+          <div class="loading"><div class="spinner"></div> 로딩 중...</div>
+        </div>
+      </div>
+
+      <!-- ===== 사용량 로그 탭 ===== -->
+      <div id="tab-usage" style="display:none">
+        <div class="table-wrap" id="usageTable">
+          <div class="loading"><div class="spinner"></div> 로딩 중...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 분석 상세 모달 -->
+<div class="modal-overlay" id="detailModal" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">분석 상세</div>
+        <div class="modal-sub" id="modalSub">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast">
+  <span id="toastMsg"></span>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase 설정
+  const firebaseConfig = {
+    apiKey: "AIzaSyAAKctowM1t-J6NH6H_VNaKrBaJZ9mgybM",
+    authDomain: "listingdoctor-d9b42.firebaseapp.com",
+    projectId: "listingdoctor-d9b42",
+    storageBucket: "listingdoctor-d9b42.firebasestorage.app",
+    messagingSenderId: "402957414632",
+    appId: "1:402957414632:web:433b5d1dba10fd3885d95d",
+    measurementId: "G-GEGXHSJC3B"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // 전역 데이터
+  let allAnalyses = [];
+  let allUsers = [];
+  let allUsageLogs = [];
+  let filteredAnalyses = [];
+  let filteredGenerations = [];
+  let allGuidelines = [];
+  let currentGuideline = null;
+  let originalGuidelineJSON = '';
+  let currentPage = 1;
+  let currentGenerationPage = 1;
+  const PAGE_SIZE = 20;
+
+  // 현재 탭
+  let currentTab = 'dashboard';
+
+  // 탭 전환
+  function showTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('[id^="tab-"]').forEach(el => el.style.display = 'none');
+    document.getElementById('tab-' + tab).style.display = 'block';
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    const titles = { dashboard: '대시보드', analyses: '분석 이력', generations: '생성 이력', guidelines: '가이드라인 관리', users: '사용자', usage: '사용량 로그' };
+    document.getElementById('pageTitle').textContent = titles[tab] || tab;
+
+    if (tab === 'analyses') renderAnalysesTable();
+    if (tab === 'generations') renderGenerationsTable();
+    if (tab === 'guidelines') loadGuidelines();
+    if (tab === 'users') loadUsers();
+    if (tab === 'usage') loadUsageLogs();
+  }
+
+  // 전체 새로고침
+  async function refreshAll() {
+    allAnalyses = [];
+    allUsers = [];
+    allUsageLogs = [];
+    filteredAnalyses = [];
+    await loadDashboard();
+    showToast('새로고침 완료');
+  }
+
+  // 대시보드 로드
+  async function loadDashboard() {
+    try {
+      const [snap, uSnap, lgSnap] = await Promise.all([
+        db.collection('analyses').orderBy('created_at', 'desc').limit(200).get(),
+        db.collection('users').get(),
+        db.collection('usage_logs').orderBy('created_at', 'desc').limit(100).get()
+      ]);
+
+      allAnalyses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      allUsers = uSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      allUsageLogs = lgSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      renderStats();
+      renderDailyChart();
+      renderRecentTable();
+
+      document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      console.error(e);
+      showToast('데이터 로드 실패: ' + e.message);
+    }
+  }
+
+  // 스탯 렌더링
+  function renderStats() {
+    document.getElementById('stat-total').textContent = allAnalyses.length;
+    document.getElementById('stat-users').textContent = allUsers.length;
+
+    const scores = allAnalyses.filter(a => a.overall_score).map(a => a.overall_score);
+    const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+    document.getElementById('stat-avg').textContent = avg;
+
+    const thisMonth = new Date();
+    const monthCost = allUsageLogs
+      .filter(l => {
+        if (!l.created_at) return false;
+        const d = l.created_at.toDate ? l.created_at.toDate() : new Date(l.created_at);
+        return d.getFullYear() === thisMonth.getFullYear() && d.getMonth() === thisMonth.getMonth();
+      })
+      .reduce((sum, l) => sum + (l.cost_usd || 0), 0);
+
+    const krw = Math.round(monthCost * 1380);
+    document.getElementById('stat-cost').textContent = '₩' + krw.toLocaleString();
+  }
+
+  // 일별 차트
+  function renderDailyChart() {
+    const days = 14;
+    const counts = {};
+    const now = new Date();
+
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const key = d.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
+      counts[key] = 0;
+    }
+
+    allAnalyses.forEach(a => {
+      if (!a.created_at) return;
+      const d = a.created_at.toDate ? a.created_at.toDate() : new Date(a.created_at);
+      const key = d.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
+      if (counts[key] !== undefined) counts[key]++;
+    });
+
+    const maxVal = Math.max(...Object.values(counts), 1);
+    const chartEl = document.getElementById('dailyChart');
+    chartEl.innerHTML = Object.entries(counts).map(([label, val]) => `
+      <div class="chart-bar-wrap">
+        <div class="chart-bar-val">${val || ''}</div>
+        <div class="chart-bar" style="height: ${Math.max((val / maxVal) * 100, val > 0 ? 8 : 4)}%;" title="${label}: ${val}건"></div>
+        <div class="chart-bar-label">${label.replace('월 ', '/').replace('일', '')}</div>
+      </div>
+    `).join('');
+  }
+
+  // 최근 분석 테이블
+  function renderRecentTable() {
+    const recent = allAnalyses.slice(0, 10);
+    document.getElementById('recentCount').textContent = allAnalyses.length + '건';
+    document.getElementById('recentTable').innerHTML = buildAnalysesTableHTML(recent, false);
+  }
+
+  // 분석 테이블 HTML 생성
+  function buildAnalysesTableHTML(data, showPagination) {
+    if (data.length === 0) return '<div class="empty">데이터 없음</div>';
+
+    const rows = data.map(a => {
+      const date = a.created_at
+        ? (a.created_at.toDate ? a.created_at.toDate() : new Date(a.created_at))
+            .toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+        : '—';
+
+      const status = a.health_status === '양호' ? 'good' : a.health_status === '주의' ? 'warn' : 'danger';
+      const scoreColor = a.overall_score >= 70 ? '#10b981' : a.overall_score >= 50 ? '#f59e0b' : '#ef4444';
+      const title = (a.product_name || '—').slice(0, 45) + (a.product_name?.length > 45 ? '...' : '');
+      const platform = a.platform || '—';
+
+      return `<tr onclick="openDetail('${a.id}')">
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${date}</td>
+        <td><span class="platform-tag">${platform}</span></td>
+        <td style="max-width:280px">${title}</td>
+        <td>
+          <div class="score-bar">
+            <div class="score-track"><div class="score-fill" style="width:${a.overall_score || 0}%;background:${scoreColor}"></div></div>
+            <span class="score-num">${a.overall_score || '—'}</span>
+          </div>
+        </td>
+        <td><span class="status ${status}">${a.health_status || '—'}</span></td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${a.user_id || '—'}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${a.source || '—'}</td>
+      </tr>`;
+    }).join('');
+
+    return `<table>
+      <thead><tr>
+        <th>날짜</th><th>플랫폼</th><th>상품명</th><th>점수</th><th>상태</th><th>유저ID</th><th>소스</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  // 분석 이력 탭 렌더링
+  function renderAnalysesTable() {
+    filterAnalyses();
+  }
+
+  // 필터 적용
+  function filterAnalyses() {
+    const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const platform = document.getElementById('platformFilter')?.value || '';
+    const status = document.getElementById('statusFilter')?.value || '';
+    const sort = document.getElementById('sortFilter')?.value || 'newest';
+
+    filteredAnalyses = allAnalyses.filter(a => {
+      const matchSearch = !search || (a.product_name || '').toLowerCase().includes(search) || (a.session_id || '').includes(search);
+      const matchPlatform = !platform || a.platform === platform;
+      const matchStatus = !status || a.health_status === status;
+      return matchSearch && matchPlatform && matchStatus;
+    });
+
+    filteredAnalyses.sort((a, b) => {
+      const getTime = x => x.created_at ? (x.created_at.toDate ? x.created_at.toDate().getTime() : new Date(x.created_at).getTime()) : 0;
+      if (sort === 'newest') return getTime(b) - getTime(a);
+      if (sort === 'oldest') return getTime(a) - getTime(b);
+      if (sort === 'score_asc') return (a.overall_score || 0) - (b.overall_score || 0);
+      if (sort === 'score_desc') return (b.overall_score || 0) - (a.overall_score || 0);
+      return 0;
+    });
+
+    currentPage = 1;
+    renderAnalysesPage();
+  }
+
+  function renderAnalysesPage() {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    const pageData = filteredAnalyses.slice(start, end);
+
+    document.getElementById('analysesTable').innerHTML = buildAnalysesTableHTML(pageData, true);
+
+    const total = filteredAnalyses.length;
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+
+    const pagination = document.getElementById('analysesPagination');
+    if (total > 0) {
+      pagination.style.display = 'flex';
+      document.getElementById('pageInfo').textContent = `${start + 1}-${Math.min(end, total)} / ${total}건`;
+
+      const btns = document.getElementById('pageBtns');
+      btns.innerHTML = `
+        <button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>←</button>
+        ${Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+          const p = Math.max(1, currentPage - 2) + i;
+          if (p > totalPages) return '';
+          return `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="changePage(${p})">${p}</button>`;
+        }).join('')}
+        <button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>→</button>
+      `;
+    } else {
+      pagination.style.display = 'none';
+    }
+  }
+
+  function changePage(p) {
+    const totalPages = Math.ceil(filteredAnalyses.length / PAGE_SIZE);
+    if (p < 1 || p > totalPages) return;
+    currentPage = p;
+    renderAnalysesPage();
+  }
+
+  // ===== 생성 이력 관련 함수 =====
+
+  // 생성 이력 테이블 렌더링
+  function renderGenerationsTable() {
+    filterGenerations();
+  }
+
+  // 생성 이력 필터 적용
+  function filterGenerations() {
+    const search = document.getElementById('searchGenerationInput')?.value.toLowerCase() || '';
+    const platform = document.getElementById('platformGenerationFilter')?.value || '';
+    const sort = document.getElementById('sortGenerationFilter')?.value || 'newest';
+
+    // action_type이 "generation"이거나 health_status가 "생성"인 항목만 필터링
+    filteredGenerations = allAnalyses.filter(a => {
+      const isGeneration = a.action_type === 'generation' || a.health_status === '생성';
+      if (!isGeneration) return false;
+
+      const matchSearch = !search || (a.product_name || '').toLowerCase().includes(search) || (a.session_id || '').includes(search);
+      const matchPlatform = !platform || a.platform === platform;
+      return matchSearch && matchPlatform;
+    });
+
+    filteredGenerations.sort((a, b) => {
+      const getTime = x => x.created_at ? (x.created_at.toDate ? x.created_at.toDate().getTime() : new Date(x.created_at).getTime()) : 0;
+      if (sort === 'newest') return getTime(b) - getTime(a);
+      if (sort === 'oldest') return getTime(a) - getTime(b);
+      if (sort === 'score_asc') return (a.overall_score || 0) - (b.overall_score || 0);
+      if (sort === 'score_desc') return (b.overall_score || 0) - (a.overall_score || 0);
+      return 0;
+    });
+
+    currentGenerationPage = 1;
+    renderGenerationsPage();
+  }
+
+  function renderGenerationsPage() {
+    const start = (currentGenerationPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    const pageData = filteredGenerations.slice(start, end);
+
+    document.getElementById('generationsTable').innerHTML = buildGenerationsTableHTML(pageData);
+
+    const total = filteredGenerations.length;
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+
+    const pagination = document.getElementById('generationsPagination');
+    if (total > 0) {
+      pagination.style.display = 'flex';
+      document.getElementById('generationPageInfo').textContent = `${start + 1}-${Math.min(end, total)} / ${total}건`;
+
+      const btns = document.getElementById('generationPageBtns');
+      btns.innerHTML = `
+        <button class="page-btn" onclick="changeGenerationPage(${currentGenerationPage - 1})" ${currentGenerationPage === 1 ? 'disabled' : ''}>←</button>
+        ${Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+          const p = Math.max(1, currentGenerationPage - 2) + i;
+          if (p > totalPages) return '';
+          return `<button class="page-btn ${p === currentGenerationPage ? 'active' : ''}" onclick="changeGenerationPage(${p})">${p}</button>`;
+        }).join('')}
+        <button class="page-btn" onclick="changeGenerationPage(${currentGenerationPage + 1})" ${currentGenerationPage === totalPages ? 'disabled' : ''}>→</button>
+      `;
+    } else {
+      pagination.style.display = 'none';
+    }
+  }
+
+  function changeGenerationPage(p) {
+    const totalPages = Math.ceil(filteredGenerations.length / PAGE_SIZE);
+    if (p < 1 || p > totalPages) return;
+    currentGenerationPage = p;
+    renderGenerationsPage();
+  }
+
+  // 생성 이력 테이블 HTML 생성
+  function buildGenerationsTableHTML(data) {
+    if (data.length === 0) return '<div class="empty">생성 이력 없음</div>';
+
+    const rows = data.map(g => {
+      const date = g.created_at
+        ? (g.created_at.toDate ? g.created_at.toDate() : new Date(g.created_at))
+            .toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+        : '—';
+
+      const scoreColor = g.overall_score >= 70 ? '#10b981' : g.overall_score >= 50 ? '#f59e0b' : '#ef4444';
+      const inputProductName = (g.product_name || '—').slice(0, 30) + (g.product_name?.length > 30 ? '...' : '');
+
+      // result.generated_listing.optimized_title 접근
+      const generatedTitle = g.result?.generated_listing?.optimized_title || g.result?.optimized_title || '—';
+      const displayTitle = generatedTitle.slice(0, 40) + (generatedTitle.length > 40 ? '...' : '');
+
+      const platform = g.platform || '—';
+
+      return `<tr onclick="openDetail('${g.id}')">
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${date}</td>
+        <td><span class="platform-tag">${platform}</span></td>
+        <td style="max-width:200px">${inputProductName}</td>
+        <td style="max-width:280px">${displayTitle}</td>
+        <td>
+          <div class="score-bar">
+            <div class="score-track"><div class="score-fill" style="width:${g.overall_score || 0}%;background:${scoreColor}"></div></div>
+            <span class="score-num">${g.overall_score || '—'}</span>
+          </div>
+        </td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${g.user_id || '—'}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${g.source || '—'}</td>
+      </tr>`;
+    }).join('');
+
+    return `<table>
+      <thead><tr>
+        <th>날짜</th><th>플랫폼</th><th>입력 상품명</th><th>생성된 상품명</th><th>준수 점수</th><th>유저ID</th><th>소스</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  // 사용자 로드
+  async function loadUsers() {
+
+    if (allUsers.length === 0) {
+      document.getElementById('usersTable').innerHTML = '<div class="empty">사용자 없음</div>';
+      return;
+  }
+
+    const rows = allUsers.map(u => {
+      const firstUsed = u.first_used_at
+        ? (u.first_used_at.toDate ? u.first_used_at.toDate() : new Date(u.first_used_at))
+            .toLocaleDateString('ko-KR')
+        : '—';
+      const lastUsed = u.last_used_at
+        ? (u.last_used_at.toDate ? u.last_used_at.toDate() : new Date(u.last_used_at))
+            .toLocaleDateString('ko-KR')
+        : '—';
+
+      return `<tr>
+        <td style="font-family:var(--mono)">${u.user_id || u.id}</td>
+        <td><span class="badge dev">${u.source || '—'}</span></td>
+        <td style="font-family:var(--mono);font-size:12px">${u.favorite_platform || '—'}</td>
+        <td style="font-family:var(--mono)">${u.total_count || 0}회</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${firstUsed}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${lastUsed}</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('usersTable').innerHTML = `<table>
+      <thead><tr>
+        <th>유저 ID</th><th>소스</th><th>주요 플랫폼</th><th>총 분석</th><th>첫 사용</th><th>최근 사용</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  // 사용량 로그 로드
+  async function loadUsageLogs() {
+
+    if (allUsageLogs.length === 0) {
+      document.getElementById('usageTable').innerHTML = '<div class="empty">로그 없음</div>';
+      return;
+    }
+
+    const rows = allUsageLogs.map(l => {
+      const date = l.created_at
+        ? (l.created_at.toDate ? l.created_at.toDate() : new Date(l.created_at))
+            .toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+        : '—';
+
+      const costKrw = Math.round((l.cost_usd || 0) * 1380);
+
+      return `<tr>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${date}</td>
+        <td><span class="platform-tag">${l.platform || '—'}</span></td>
+        <td style="font-family:var(--mono)">${l.user_id || '—'}</td>
+        <td style="font-family:var(--mono);color:var(--text2)">${(l.input_tokens || 0).toLocaleString()}</td>
+        <td style="font-family:var(--mono);color:var(--text2)">${(l.output_tokens || 0).toLocaleString()}</td>
+        <td style="font-family:var(--mono);color:var(--warn)">$${(l.cost_usd || 0).toFixed(5)}</td>
+        <td style="font-family:var(--mono);color:var(--text2)">₩${costKrw}</td>
+        <td style="font-family:var(--mono);font-size:10px;color:var(--text3)">${(l.session_id || '—').slice(0, 16)}...</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('usageTable').innerHTML = `<table>
+      <thead><tr>
+        <th>날짜</th><th>플랫폼</th><th>유저 ID</th><th>입력 토큰</th><th>출력 토큰</th><th>USD</th><th>KRW</th><th>세션 ID</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  // ===== 가이드라인 관리 함수 =====
+
+  async function loadGuidelines() {
+    const platforms = ['amazon_us', 'amazon_jp', 'shopee', 'lazada', 'rakuten'];
+
+    try {
+      const guidelinePromises = platforms.map(async (platform) => {
+        const doc = await db.collection('guidelines').doc(platform).get();
+        if (doc.exists) {
+          return { platform, ...doc.data() };
+        }
+        return { platform, version: 'empty', guideline_data: {} };
+      });
+
+      allGuidelines = await Promise.all(guidelinePromises);
+
+      // 플랫폼 목록 렌더링
+      const platformNames = {
+        amazon_us: 'Amazon US',
+        amazon_jp: 'Amazon JP',
+        shopee: 'Shopee',
+        lazada: 'Lazada',
+        rakuten: '라쿠텐 (Rakuten)'
+      };
+
+      const listHTML = allGuidelines.map(g => {
+        const isEmpty = g.version === 'empty' || !g.guideline_data || Object.keys(g.guideline_data).length === 0;
+        const statusColor = isEmpty ? 'var(--text3)' : 'var(--success)';
+        const statusText = isEmpty ? '비어있음' : g.version;
+
+        return `
+          <div onclick="selectGuideline('${g.platform}')" style="padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--bg3)'">
+            <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">${platformNames[g.platform]}</div>
+            <div style="font-size:11px;color:${statusColor}">${statusText}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('guidelinePlatformList').innerHTML = listHTML;
+    } catch (e) {
+      console.error(e);
+      showToast('가이드라인 로드 실패: ' + e.message);
+    }
+  }
+
+  async function selectGuideline(platform) {
+    const guideline = allGuidelines.find(g => g.platform === platform);
+    if (!guideline) return;
+
+    currentGuideline = guideline;
+
+    const platformNames = {
+      amazon_us: 'Amazon US',
+      amazon_jp: 'Amazon JP',
+      shopee: 'Shopee',
+      lazada: 'Lazada',
+      rakuten: '라쿠텐 (Rakuten)'
+    };
+
+    document.getElementById('guidelinePlatformName').textContent = platformNames[platform];
+
+    const isEmpty = guideline.version === 'empty' || !guideline.guideline_data || Object.keys(guideline.guideline_data).length === 0;
+
+    if (isEmpty) {
+      document.getElementById('guidelineVersion').textContent = '비어있음 - 새로운 가이드라인을 입력하세요';
+      originalGuidelineJSON = '{\n  "platform": "' + platform + '",\n  "status": "draft",\n  "rules": {\n    \n  }\n}';
+    } else {
+      const updatedAt = guideline.updated_at
+        ? (guideline.updated_at.toDate ? guideline.updated_at.toDate() : new Date(guideline.updated_at)).toLocaleString('ko-KR')
+        : '—';
+      document.getElementById('guidelineVersion').textContent = `버전: ${guideline.version} | 수정: ${updatedAt} | 수정자: ${guideline.updated_by || '—'}`;
+      originalGuidelineJSON = JSON.stringify(guideline.guideline_data, null, 2);
+    }
+
+    document.getElementById('guidelineEditor').value = originalGuidelineJSON;
+  }
+
+  async function saveGuideline() {
+    if (!currentGuideline) {
+      showToast('플랫폼을 선택하세요');
+      return;
+    }
+
+    const editorValue = document.getElementById('guidelineEditor').value.trim();
+    if (!editorValue) {
+      showToast('가이드라인을 입력하세요');
+      return;
+    }
+
+    // JSON 검증
+    let guidelineData;
+    try {
+      guidelineData = JSON.parse(editorValue);
+    } catch (e) {
+      showToast('JSON 형식이 올바르지 않습니다: ' + e.message);
+      return;
+    }
+
+    try {
+      const updateData = {
+        platform: currentGuideline.platform,
+        version: 'custom',
+        guideline_data: guidelineData,
+        updated_at: new Date(),
+        updated_by: 'admin_panel'
+      };
+
+      await db.collection('guidelines').doc(currentGuideline.platform).set(updateData);
+
+      showToast('가이드라인 저장 완료');
+
+      // 목록 새로고침
+      await loadGuidelines();
+      await selectGuideline(currentGuideline.platform);
+    } catch (e) {
+      console.error(e);
+      showToast('저장 실패: ' + e.message);
+    }
+  }
+
+  function resetGuideline() {
+    if (!currentGuideline) return;
+    document.getElementById('guidelineEditor').value = originalGuidelineJSON;
+    showToast('변경사항 취소');
+  }
+
+  // 분석 상세 모달
+  // 생성 이력 모달 렌더링
+  function renderGenerationModal(a, date, scoreColor, r) {
+    const listing = r.generated_listing || {};
+
+    // 불릿 포인트 HTML 생성
+    const bulletPoints = (listing.bullet_points || []).map((bp, i) => `
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:8px">
+        <div style="font-size:13px;color:var(--text);margin-bottom:6px;font-weight:500">${bp.english || ''}</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:4px">의미: ${bp.korean || ''}</div>
+        <div style="font-size:11px;color:var(--text3)">이유: ${bp.reason || ''}</div>
+      </div>
+    `).join('') || '<div style="color:var(--text3);font-size:13px">없음 (Shopee 등 플랫폼)</div>';
+
+    // 백엔드 키워드
+    const backendKws = (listing.backend_keywords || []).length > 0
+      ? listing.backend_keywords.join(', ')
+      : '없음 (Shopee 등 플랫폼)';
+
+    // SEO 키워드
+    const seoKws = (listing.seo_keywords || []).join(', ') || '—';
+
+    // 팁
+    const tips = (r.tips || []).map((tip, i) => `
+      <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:8px;padding:12px;margin-bottom:8px">
+        <div style="font-size:13px;color:var(--text2)">${tip}</div>
+      </div>
+    `).join('') || '<div style="color:var(--text3);font-size:13px">없음</div>';
+
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-grid">
+        <div class="modal-field">
+          <div class="modal-field-label">생성 일시</div>
+          <div class="modal-field-value">${date}</div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-field-label">플랫폼 / 국가</div>
+          <div class="modal-field-value">${a.platform} / ${a.country}</div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-field-label">유저 ID / 소스</div>
+          <div class="modal-field-value">${a.user_id} / ${a.source}</div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-field-label">비용</div>
+          <div class="modal-field-value">₩${a.cost_krw || 0}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:16px;background:var(--bg3);border-radius:10px;padding:16px;margin-bottom:20px">
+        <div style="text-align:center">
+          <div style="font-size:36px;font-weight:600;color:${scoreColor};font-family:var(--mono)">${a.overall_score || 0}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">가이드라인 준수 점수</div>
+        </div>
+      </div>
+
+      <div class="modal-section-title">최적화된 상품명</div>
+      <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:4px">
+        <div style="font-size:14px;color:var(--text);margin-bottom:8px;font-weight:500">${listing.optimized_title || '—'}</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px">의미: ${listing.optimized_title_korean || '—'}</div>
+        <div style="font-size:11px;color:var(--text3)">이유: ${listing.title_reason || '—'}</div>
+      </div>
+
+      <div class="modal-section-title">불릿 포인트 (Amazon용)</div>
+      ${bulletPoints}
+
+      <div class="modal-section-title">상품 설명</div>
+      <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:4px">
+        <div style="font-size:13px;color:var(--text);white-space:pre-wrap;margin-bottom:8px">${listing.description || '—'}</div>
+        <div style="font-size:12px;color:var(--text2);border-top:1px solid var(--bg2);padding-top:8px;margin-top:8px">
+          의미: ${listing.description_korean || '—'}
+        </div>
+      </div>
+
+      <div class="modal-section-title">추천 카테고리</div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:4px">
+        <div style="font-size:13px;color:var(--text);margin-bottom:6px">${listing.recommended_category || '—'}</div>
+        <div style="font-size:11px;color:var(--text3)">이유: ${listing.category_reason || '—'}</div>
+      </div>
+
+      <div class="modal-section-title">검색 키워드</div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:4px;font-size:13px;color:var(--text2)">
+        ${listing.search_terms || '—'}
+      </div>
+
+      <div class="modal-section-title">백엔드 키워드 (Amazon Search Terms)</div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:4px;font-size:13px;color:var(--text2)">
+        ${backendKws}
+      </div>
+
+      <div class="modal-section-title">SEO 키워드</div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:4px;font-size:13px;color:var(--text2)">
+        ${seoKws}
+      </div>
+
+      <div class="modal-section-title">추가 최적화 팁</div>
+      ${tips}
+    `;
+
+    document.getElementById('detailModal').classList.add('open');
+  }
+
+  function openDetail(id) {
+    const a = allAnalyses.find(x => x.id === id);
+    if (!a) return;
+
+    document.getElementById('modalTitle').textContent = (a.product_name || '—').slice(0, 60);
+    document.getElementById('modalSub').textContent = `${a.session_id} · ${a.platform} · ${a.country}`;
+
+    const date = a.created_at
+      ? (a.created_at.toDate ? a.created_at.toDate() : new Date(a.created_at)).toLocaleString('ko-KR')
+      : '—';
+
+    const scoreColor = a.overall_score >= 70 ? '#10b981' : a.overall_score >= 50 ? '#f59e0b' : '#ef4444';
+    const r = a.result || {};
+
+    // 생성 이력인 경우 다른 모달 내용 표시
+    if (a.action_type === 'generation' || a.health_status === '생성') {
+      renderGenerationModal(a, date, scoreColor, r);
+      return;
+    }
+    const radar = r.radar_scores || {};
+
+    const radarItems = [
+      { label: 'SEO', key: 'seo' },
+      { label: '콘텐츠', key: 'content' },
+      { label: '신뢰도', key: 'trust' },
+      { label: '가격', key: 'price' },
+      { label: '모바일', key: 'mobile' },
+      { label: '전환율', key: 'conversion' },
+    ];
+
+    const radarBars = radarItems.map(item => {
+      const val = radar[item.key] || 0;
+      const c = val >= 70 ? '#10b981' : val >= 50 ? '#f59e0b' : '#ef4444';
+      return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:12px;color:var(--text2);width:50px;font-family:var(--mono)">${item.label}</span>
+        <div style="flex:1;height:5px;background:var(--bg3);border-radius:3px">
+          <div style="width:${val}%;height:100%;background:${c};border-radius:3px"></div>
+        </div>
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text2);width:28px;text-align:right">${val}</span>
+      </div>`;
+    }).join('');
+
+    const issues = (r.critical_issues || []).map((issue, i) => `
+      <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:8px;padding:12px;margin-bottom:8px">
+        <div style="font-size:11px;font-family:var(--mono);color:var(--danger);margin-bottom:4px">#{${i + 1}} ${issue.issue || ''}</div>
+        <div style="font-size:13px;color:var(--text2)">${issue.impact || ''}</div>
+      </div>
+    `).join('');
+
+    const optimTitles = (r.optimized_titles || []).map((t, i) => `
+      <div style="background:var(--bg3);border-radius:6px;padding:10px 12px;margin-bottom:6px;font-size:12px;color:var(--text)">
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-right:6px">${i + 1}</span>${t}
+      </div>
+    `).join('');
+
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-grid">
+        <div class="modal-field">
+          <div class="modal-field-label">분석 일시</div>
+          <div class="modal-field-value">${date}</div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-field-label">플랫폼 / 국가</div>
+          <div class="modal-field-value">${a.platform} / ${a.country}</div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-field-label">유저 ID / 소스</div>
+          <div class="modal-field-value">${a.user_id} / ${a.source}</div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-field-label">비용</div>
+          <div class="modal-field-value">₩${a.cost_krw || 0}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:16px;background:var(--bg3);border-radius:10px;padding:16px;margin-bottom:4px">
+        <div style="text-align:center">
+          <div style="font-size:36px;font-weight:600;color:${scoreColor};font-family:var(--mono)">${a.overall_score || 0}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">종합 점수</div>
+        </div>
+        <div style="flex:1">${radarBars}</div>
+      </div>
+
+      <div class="modal-section-title">치명적 문제 Top 3</div>
+      ${issues || '<div style="color:var(--text3);font-size:13px">없음</div>'}
+
+      <div class="modal-section-title">최적화 상품명 제안</div>
+      ${optimTitles || '<div style="color:var(--text3);font-size:13px">없음</div>'}
+    `;
+
+    document.getElementById('detailModal').classList.add('open');
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('detailModal')) closeModalDirect();
+  }
+
+  function closeModalDirect() {
+    document.getElementById('detailModal').classList.remove('open');
+  }
+
+  // 외부 링크
+  function openExternal(url) {
+    window.open(url, '_blank');
+  }
+
+  // 토스트
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // 키보드 단축키
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModalDirect();
+  });
+
+  // 초기 로드
+  loadDashboard();
+</script>
+</body>
+</html>
