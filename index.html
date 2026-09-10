@@ -100,6 +100,30 @@
       font-weight: 500;
     }
 
+    .lang-toggle-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 1px 3px var(--shadow);
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .lang-toggle-btn:hover {
+      border-color: var(--indigo);
+      background: #f5f5ff;
+    }
+
     .main-content {
       transition: margin-left 0.3s ease;
       margin-left: 0;
@@ -1492,6 +1516,9 @@
 
 <!-- 상단 헤더 -->
 <div class="top-header" id="topHeader">
+  <button class="lang-toggle-btn" id="langToggleBtn" onclick="toggleLanguage()" title="Switch language / 언어 전환">
+    <span>🌐</span><span id="langToggleLabel">EN</span>
+  </button>
   <img src="aicon_logo_primary-01.png" alt="AICON" class="header-aicon-logo">
   <h1 class="header-logo">Listing Doctor</h1>
   <p class="header-subtitle">AI가 진단하는 해외 플랫폼 상품 등록</p>
@@ -1761,6 +1788,319 @@ IPX7 방수 등급으로 운동 중 땀이나 비에도 안심하고 사용할 �
 
 <script>
 const API_BASE = 'https://listingdoctor-api-ecb2a7h5gsh8fwfm.koreacentral-01.azurewebsites.net';
+
+// ===== 다국어(한국어/영어) 전환 =====
+// AI가 생성하는 진단/처방/카피 내용은 그대로 두고, 화면 UI 문구(버튼/레이블/안내/빈 상태 등)만 번역한다.
+const TRANSLATIONS = {
+  // 헤더/공통
+  'Listing Doctor — AI 상품 등록 진단': 'Listing Doctor — AI Listing Diagnosis',
+  'AI가 진단하는 해외 플랫폼 상품 등록': 'AI diagnosis for your overseas marketplace listings',
+
+  // AICON 인증 오류 화면
+  '인증이 만료되었습니다': 'Your session has expired',
+  'AICON 로그인이 필요합니다.': 'You need to log in to AICON.',
+  '아래 버튼을 클릭하여 다시 로그인해주세요.': 'Please click the button below to log in again.',
+  'AICON으로 돌아가기': 'Back to AICON',
+  '문제가 지속되면 AICON 고객센터로 문의해주세요.': 'If the problem continues, please contact AICON support.',
+
+  // 사이드바 (이력)
+  '➕ 새로 시작하기': '➕ Start New',
+  '이력': 'History',
+  '이력이 없습니다': 'No history yet',
+  '생성 이력': 'Generation History',
+  '분석 이력': 'Analysis History',
+  '생성 이력이 없습니다': 'No generation history yet',
+  '분석 이력이 없습니다': 'No analysis history yet',
+  '이력을 불러올 수 없습니다': "Couldn't load history",
+
+  // 랜딩 페이지
+  '무엇을 도와드릴까요?': 'What can we help you with?',
+  '원하는 기능을 선택해주세요': 'Choose a feature to get started',
+  '신규 등록': 'New Listing',
+  '상품 정보를 입력하면 최적화된 등록 정보를 자동 생성': 'Enter product info to auto-generate an optimized listing',
+  '등록 정보 분석': 'Listing Analysis',
+  '기존 등록 정보의 문제점을 진단하고 개선안 제공': 'Diagnose issues in an existing listing and get improvement suggestions',
+  '등록 분석': 'Analysis',
+
+  // 분석(진단) 폼
+  '상품명과 제품 설명을 입력하면 최적화된 등록 정보를 자동으로 생성합니다.': 'Enter a product name and description to auto-generate an optimized listing.',
+  '상품명 (한글 OK)': 'Product Name (Korean OK)',
+  '간단하게 제품 이름만 입력하세요': 'Just enter a simple product name',
+  '제품 설명 (한글로 자유롭게 작성)': 'Product Description (write freely, Korean is fine)',
+  '예: 무선 블루투스 이어폰': 'e.g. Wireless Bluetooth Earbuds',
+  'Amazon US · 상품명 미입력': 'Amazon US · No product name entered',
+  '수정하기': 'Edit',
+  '접기 ▲': 'Collapse ▲',
+  '등록 정보 분석 요청': 'Analyze this listing',
+  '진단 시작': 'Start Diagnosis',
+  '분석 중...': 'Analyzing...',
+  'AI가 등록 정보를 분석하고 있습니다...': 'AI is analyzing your listing...',
+  '← 다시 분석하기': '← Analyze again',
+  '📝 입력 정보': '📝 Input',
+  '상품명을 입력해주세요.': 'Please enter a product name.',
+  '제품 설명을 입력해주세요.': 'Please enter a product description.',
+  '제품 설명을 더 자세히 입력해주세요 (최소 50자).': 'Please write a more detailed description (at least 50 characters).',
+  '플랫폼을 변경하면 입력한 내용이 초기화됩니다. 계속하시겠습니까?': 'Changing the platform will reset what you entered. Continue?',
+  '플랫폼 또는 국가 정보를 찾을 수 없습니다.': 'Could not find platform or country info.',
+  '입력 정보를 불러올 수 없습니다': "Couldn't load input info",
+
+  // 분석 결과
+  '📊 종합 진단 결과': '📊 Overall Diagnosis',
+  '6각 진단 차트': '6-Axis Diagnostic Chart',
+  '⚠️ 문제점 및 위반 사항': '⚠️ Issues & Violations',
+  '치명적 문제 Top 3': 'Top 3 Critical Issues',
+  '가이드라인 위반 항목': 'Guideline Violations',
+  '치명적 문제가 발견되지 않았습니다.': 'No critical issues found.',
+  '가이드라인 위반 사항이 없습니다.': 'No guideline violations found.',
+  '💊 긴급 처방전': '💊 Urgent Prescriptions',
+  '✨ 최적화 상품명 & 키워드': '✨ Optimized Titles & Keywords',
+  '최적화 상품명': 'Optimized Titles',
+  '추천 제목 1안': 'Suggested Title #1',
+  '마케팅 키워드': 'Marketing Keywords',
+  '💰 가격 전략': '💰 Pricing Strategy',
+  '가격 전략': 'Pricing Strategy',
+  '📋 전체 항목 Before & After': '📋 Full Before & After',
+  '항목': 'Item',
+  'Before (원본)': 'Before (Original)',
+  'After (개선안)': 'After (Improved)',
+  '위험': 'Risk',
+  '주의': 'Caution',
+  '양호': 'Good',
+
+  // 레이더 차트 축 (Chart.js 캔버스는 별도로 다시 그려줘야 함 — updateRadarChartLanguage 참고)
+  '콘텐츠': 'Content',
+  '신뢰도': 'Trust',
+  '모바일': 'Mobile',
+  '전환율': 'Conversion',
+  '점수': 'Score',
+
+  // 요약 바 (플랫폼/국가/통화)
+  '플랫폼': 'Platform',
+  '국가': 'Country',
+  '통화': 'Currency',
+  '가격': 'Price',
+  '상품명': 'Product Name',
+  '상품 설명': 'Description',
+
+  // 신규 등록 생성
+  '신규 등록 생성': 'Create New Listing',
+  '등록 정보 생성': 'Generate Listing',
+  '생성 중...': 'Generating...',
+  '생성 실패': 'Generation failed',
+  '생성': 'Generate',
+  '생성된 등록 정보': 'Generated Listing',
+  '← 다시 생성하기': '← Generate again',
+  '📝 내가 입력한 내용 보기': '📝 View my input',
+  '불릿 포인트': 'Bullet Points',
+  '📋 전체 복사': '📋 Copy All',
+  '📋 복사': '📋 Copy',
+  '🇰🇷 한국어': '🇰🇷 Korean',
+  '🇰🇷 한국어·근거': '🇰🇷 Korean & Rationale',
+  '💡 작성 근거': '💡 Rationale',
+  '💡 추천 근거': '💡 Rationale',
+  '추천 카테고리': 'Recommended Category',
+  '검색 키워드': 'Search Keywords',
+  '백엔드 키워드': 'Backend Keywords',
+  '최적화 팁': 'Optimization Tips',
+  '완료': 'Done',
+  '상품명 없음': 'No product name',
+  '결과를 찾을 수 없습니다': 'Result not found',
+  '복사되었습니다!': 'Copied!',
+  '복사 실패: ': 'Copy failed: ',
+
+  // 국가 라디오 버튼
+  '미국 (US)': 'United States (US)',
+  '일본 (JP)': 'Japan (JP)',
+  '싱가포르 (SG)': 'Singapore (SG)',
+  '말레이시아 (MY)': 'Malaysia (MY)',
+  '태국 (TH)': 'Thailand (TH)',
+  '베트남 (VN)': 'Vietnam (VN)',
+  '필리핀 (PH)': 'Philippines (PH)',
+  '대만 (TW)': 'Taiwan (TW)',
+  '브라질 (BR)': 'Brazil (BR)',
+  '미국': 'United States',
+  '일본': 'Japan',
+  '싱가포르': 'Singapore',
+  '말레이시아': 'Malaysia',
+  '태국': 'Thailand',
+  '베트남': 'Vietnam',
+  '필리핀': 'Philippines',
+  '대만': 'Taiwan',
+  '브라질': 'Brazil',
+  'Shopee (동남아)': 'Shopee (Southeast Asia)',
+  'Lazada (동남아)': 'Lazada (Southeast Asia)',
+  '라쿠텐 (일본)': 'Rakuten (Japan)',
+  '라쿠텐': 'Rakuten',
+
+  // 생성 폼: 플랫폼별 필드 라벨 (한국어 부분만 번역, 현지어 예시는 그대로 유지)
+  '상품명 (Tên sản phẩm)': 'Product Name (Tên sản phẩm)',
+  '가격 (Giá)': 'Price (Giá)',
+  '카테고리 (Danh mục)': 'Category (Danh mục)',
+  '상품명 (Product Name)': 'Product Name',
+  '가격 (Price)': 'Price',
+  '카테고리 (Category)': 'Category',
+  '상품명 (商品名)': 'Product Name (商品名)',
+  '가격 (価格)': 'Price (価格)',
+  '카테고리 (カテゴリ)': 'Category (カテゴリ)',
+  '상품 설명 (商品説明)': 'Description (商品説明)',
+  '검색 키워드 (検索キーワード)': 'Search Keywords (検索キーワード)',
+  '주요 특징 1 (Tính năng 1)': 'Key Feature 1 (Tính năng 1)',
+  '주요 특징 2 (Tính năng 2)': 'Key Feature 2 (Tính năng 2)',
+  '주요 특징 3 (Tính năng 3)': 'Key Feature 3 (Tính năng 3)',
+  '상품 설명 (Description)': 'Description',
+  '검색어 (Search Terms)': 'Search Terms',
+  '불릿 포인트 1 (Bullet Point 1)': 'Bullet Point 1',
+  '불릿 포인트 2 (Bullet Point 2)': 'Bullet Point 2',
+  '불릿 포인트 3 (Bullet Point 3)': 'Bullet Point 3',
+  '불릿 포인트 4 (Bullet Point 4)': 'Bullet Point 4',
+  '불릿 포인트 5 (Bullet Point 5)': 'Bullet Point 5',
+  '불릿 포인트 1 (商品仕様 1)': 'Bullet Point 1 (商品仕様 1)',
+  '불릿 포인트 2 (商品仕様 2)': 'Bullet Point 2 (商品仕様 2)',
+  '불릿 포인트 3 (商品仕様 3)': 'Bullet Point 3 (商品仕様 3)',
+  '불릿 포인트 4 (商品仕様 4)': 'Bullet Point 4 (商品仕様 4)',
+  '불릿 포인트 5 (商品仕様 5)': 'Bullet Point 5 (商品仕様 5)',
+  '상품 설명 (Mô tả)': 'Description (Mô tả)',
+  '해시태그 (Hashtag, 최대 20개)': 'Hashtags (up to 20)',
+  '해시태그 (Hashtag)': 'Hashtags',
+  '상품 설명 (Mô tả, HTML 허용)': 'Description (Mô tả, HTML allowed)',
+  '캐치카피 (キャッチコピー)': 'Catch Copy (キャッチコピー)',
+  '상품 설명 (Mô tả sản phẩm)': 'Description (Mô tả sản phẩm)',
+  '상품명 (ชื่อสินค้า)': 'Product Name (ชื่อสินค้า)',
+  '가격 (ราคา)': 'Price (ราคา)',
+  '카테고리 (หมวดหมู่)': 'Category (หมวดหมู่)',
+  '상품 설명 (รายละเอียดสินค้า)': 'Description (รายละเอียดสินค้า)',
+  '해시태그 (แฮชแท็ก)': 'Hashtags (แฮชแท็ก)',
+  '주요 특징 1 (คุณสมบัติ 1)': 'Key Feature 1 (คุณสมบัติ 1)',
+  '주요 특징 2 (คุณสมบัติ 2)': 'Key Feature 2 (คุณสมบัติ 2)',
+  '주요 특징 3 (คุณสมบัติ 3)': 'Key Feature 3 (คุณสมบัติ 3)',
+  '상품명 (Nama Produk)': 'Product Name (Nama Produk)',
+  '가격 (Harga)': 'Price (Harga)',
+  '카테고리 (Kategori)': 'Category (Kategori)',
+  '상품 설명 (Penerangan Produk)': 'Description (Penerangan Produk)',
+  '주요 특징 1 (Ciri-ciri 1)': 'Key Feature 1 (Ciri-ciri 1)',
+  '주요 특징 2 (Ciri-ciri 2)': 'Key Feature 2 (Ciri-ciri 2)',
+  '주요 특징 3 (Ciri-ciri 3)': 'Key Feature 3 (Ciri-ciri 3)',
+  '상품 설명 (Product Description)': 'Description',
+  '주요 특징 1 (Feature 1)': 'Key Feature 1',
+  '주요 특징 2 (Feature 2)': 'Key Feature 2',
+  '주요 특징 3 (Feature 3)': 'Key Feature 3',
+  '상품명 (Pangalan ng Produkto)': 'Product Name (Pangalan ng Produkto)',
+  '가격 (Presyo)': 'Price (Presyo)',
+  '카테고리 (Kategorya)': 'Category (Kategorya)',
+  '상품 설명 (Paglalarawan)': 'Description (Paglalarawan)',
+  '주요 특징 1 (Katangian 1)': 'Key Feature 1 (Katangian 1)',
+  '주요 특징 2 (Katangian 2)': 'Key Feature 2 (Katangian 2)',
+  '주요 특징 3 (Katangian 3)': 'Key Feature 3 (Katangian 3)',
+
+  // 기타 짧은 라벨(요약 카드 등)
+  '종합 진단': 'Overall Diagnosis',
+  '주요 문제': 'Key Issues',
+  '처방전': 'Prescription',
+  '마케팅': 'Marketing',
+};
+
+let currentLang = localStorage.getItem('ld_lang') || 'ko';
+const langOriginals = new WeakMap();   // 텍스트 노드 -> 원본(한국어) 텍스트
+const attrOriginals = new WeakMap();   // 엘리먼트 -> { attr: 원본 값 }
+
+function translateTextNode(node) {
+  const raw = node.textContent;
+  const trimmed = raw.trim();
+  if (!trimmed) return;
+
+  if (currentLang === 'en') {
+    if (langOriginals.has(node)) return;
+    const en = TRANSLATIONS[trimmed];
+    if (en !== undefined) {
+      langOriginals.set(node, raw);
+      node.textContent = raw.replace(trimmed, en);
+    }
+  } else if (langOriginals.has(node)) {
+    node.textContent = langOriginals.get(node);
+    langOriginals.delete(node);
+  }
+}
+
+function translateAttr(el, attr) {
+  const raw = el.getAttribute(attr);
+  if (!raw) return;
+  const trimmed = raw.trim();
+
+  if (currentLang === 'en') {
+    let store = attrOriginals.get(el);
+    if (store && store[attr] !== undefined) return;
+    const en = TRANSLATIONS[trimmed];
+    if (en !== undefined) {
+      if (!store) { store = {}; attrOriginals.set(el, store); }
+      store[attr] = raw;
+      el.setAttribute(attr, raw.replace(trimmed, en));
+    }
+  } else {
+    const store = attrOriginals.get(el);
+    if (store && store[attr] !== undefined) {
+      el.setAttribute(attr, store[attr]);
+      delete store[attr];
+    }
+  }
+}
+
+function walkAndTranslate(node) {
+  if (!node) return;
+  if (node.nodeType === Node.TEXT_NODE) {
+    translateTextNode(node);
+    return;
+  }
+  if (node.nodeType !== Node.ELEMENT_NODE) return;
+  if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') return;
+
+  if (node.hasAttribute('placeholder')) translateAttr(node, 'placeholder');
+  if (node.hasAttribute('title')) translateAttr(node, 'title');
+
+  for (const child of Array.from(node.childNodes)) {
+    walkAndTranslate(child);
+  }
+}
+
+function updateRadarChartLanguage() {
+  if (typeof radarChart === 'undefined' || !radarChart) return;
+  const labelsKo = ['SEO', '콘텐츠', '신뢰도', '가격', '모바일', '전환율'];
+  const labelsEn = ['SEO', 'Content', 'Trust', 'Price', 'Mobile', 'Conversion'];
+  radarChart.data.labels = currentLang === 'en' ? labelsEn : labelsKo;
+  if (radarChart.data.datasets && radarChart.data.datasets[0]) {
+    radarChart.data.datasets[0].label = currentLang === 'en' ? 'Score' : '점수';
+  }
+  radarChart.update();
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('ld_lang', lang);
+  document.documentElement.lang = lang;
+  const labelEl = document.getElementById('langToggleLabel');
+  if (labelEl) labelEl.textContent = lang === 'en' ? 'KO' : 'EN';
+  walkAndTranslate(document.body);
+  updateRadarChartLanguage();
+}
+
+function toggleLanguage() {
+  setLanguage(currentLang === 'en' ? 'ko' : 'en');
+}
+
+// alert()/confirm()은 네이티브 대화상자라 DOM 번역기가 못 잡음 - 직접 감싸서 씀
+function t(ko) {
+  return currentLang === 'en' && TRANSLATIONS[ko] !== undefined ? TRANSLATIONS[ko] : ko;
+}
+
+// 이후 동적으로 추가되는 노드(분석/생성 결과 등)도 현재 언어에 맞춰 자동 번역
+const langObserver = new MutationObserver((mutations) => {
+  if (currentLang !== 'en') return;
+  for (const m of mutations) {
+    m.addedNodes.forEach(walkAndTranslate);
+  }
+});
+langObserver.observe(document.documentElement, { childList: true, subtree: true });
+// 저장된 언어 설정 적용은 파일 맨 아래(다른 초기화 코드와 함께)에서 실행함
+// — radarChart 등 나중에 선언되는 let 변수를 여기서 미리 참조하면 안 되기 때문.
 
 // 플랫폼별 로딩 팁
 const PLATFORM_TIPS = {
@@ -2086,17 +2426,17 @@ async function submitGenerate() {
 
   // 유효성 검사
   if (!productName) {
-    alert('상품명을 입력해주세요.');
+    alert(t('상품명을 입력해주세요.'));
     return;
   }
 
   if (!description) {
-    alert('제품 설명을 입력해주세요.');
+    alert(t('제품 설명을 입력해주세요.'));
     return;
   }
 
   if (description.length < 50) {
-    alert('제품 설명을 더 자세히 입력해주세요 (최소 50자).');
+    alert(t('제품 설명을 더 자세히 입력해주세요 (최소 50자).'));
     return;
   }
 
@@ -2350,9 +2690,9 @@ function switchLangTab(resultId, lang) {
 // 클립보드 복사
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => {
-    alert('복사되었습니다!');
+    alert(t('복사되었습니다!'));
   }).catch(err => {
-    alert('복사 실패: ' + err);
+    alert(t('복사 실패: ') + err);
   });
 }
 
@@ -2483,7 +2823,7 @@ function renderHistory(history, type) {
 // 이력 아이템 클릭 시 결과 표시
 function showHistoryItem(item, type) {
   if (!item.result) {
-    alert('결과를 찾을 수 없습니다');
+    alert(t('결과를 찾을 수 없습니다'));
     return;
   }
 
@@ -3027,7 +3367,7 @@ function switchPlatform() {
   const config = PLATFORM_CONFIG[platform];
 
   if (currentData && currentData.listingData && Object.keys(currentData.listingData).length > 0) {
-    if (!confirm('플랫폼을 변경하면 입력한 내용이 초기화됩니다. 계속하시겠습니까?')) {
+    if (!confirm(t('플랫폼을 변경하면 입력한 내용이 초기화됩니다. 계속하시겠습니까?'))) {
       return;
     }
   }
@@ -3511,7 +3851,9 @@ function renderFullComparisonTable(data) {
 
 function drawRadar(scores) {
   const ctx = document.getElementById('radarChart').getContext('2d');
-  const labels = ['SEO', '콘텐츠', '신뢰도', '가격', '모바일', '전환율'];
+  const labels = currentLang === 'en'
+    ? ['SEO', 'Content', 'Trust', 'Price', 'Mobile', 'Conversion']
+    : ['SEO', '콘텐츠', '신뢰도', '가격', '모바일', '전환율'];
   const keys = ['seo', 'content', 'trust', 'price', 'mobile', 'conversion'];
   const values = keys.map(k => scores[k]);
 
@@ -3522,7 +3864,7 @@ function drawRadar(scores) {
     data: {
       labels: labels,
       datasets: [{
-        label: '점수',
+        label: currentLang === 'en' ? 'Score' : '점수',
         data: values,
         backgroundColor: 'rgba(99, 102, 241, 0.15)',
         borderColor: '#6366f1',
@@ -3693,6 +4035,9 @@ function toggleLangDetails(icon) {
     content.classList.toggle('open');
   }
 }
+
+// 저장된 언어 설정 적용 (파일 앞부분 함수 선언 이후, 다른 초기화와 함께 실행)
+setLanguage(currentLang);
 </script>
 
 </body>
