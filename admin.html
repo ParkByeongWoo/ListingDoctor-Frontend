@@ -680,11 +680,11 @@
         <span class="icon">◎</span> 사용량 로그
       </div>
       <div class="nav-label">시스템</div>
-      <div class="nav-item" onclick="openExternal('https://console.firebase.google.com/project/listingdoctor-d9b42/firestore')">
-        <span class="icon">⊞</span> Firestore
+      <div class="nav-item" onclick="openExternal('https://portal.azure.com/#blade/HubsExtension/BrowseResource/resourceType/Microsoft.DocumentDB%2FdatabaseAccounts')">
+        <span class="icon">⊞</span> Cosmos DB
       </div>
-      <div class="nav-item" onclick="openExternal('https://console.cloud.google.com/run/detail/asia-northeast3/listingdoctor-api/logs?project=listing-doctor-493401')">
-        <span class="icon">⊟</span> Cloud Run 로그
+      <div class="nav-item" onclick="openExternal('https://listingdoctor-api-ecb2a7h5gsh8fwfm.scm.koreacentral-01.azurewebsites.net/api/logstream')">
+        <span class="icon">⊟</span> Azure 로그
       </div>
       <div class="nav-item" onclick="openExternal('https://listingdoctor-d9b42.web.app')">
         <span class="icon">↗</span> 서비스 바로가기
@@ -752,7 +752,7 @@
           <div class="section-meta" id="recentCount">—건</div>
         </div>
         <div class="table-wrap" id="recentTable">
-          <div class="loading"><div class="spinner"></div> Firestore 로딩 중...</div>
+          <div class="loading"><div class="spinner"></div> 데이터 로딩 중...</div>
         </div>
       </div>
 
@@ -889,24 +889,43 @@
   <span id="toastMsg"></span>
 </div>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
 <script>
-  // Firebase 설정
-  const firebaseConfig = {
-    apiKey: "AIzaSyAAKctowM1t-J6NH6H_VNaKrBaJZ9mgybM",
-    authDomain: "listingdoctor-d9b42.firebaseapp.com",
-    projectId: "listingdoctor-d9b42",
-    storageBucket: "listingdoctor-d9b42.firebasestorage.app",
-    messagingSenderId: "402957414632",
-    appId: "1:402957414632:web:433b5d1dba10fd3885d95d",
-    measurementId: "G-GEGXHSJC3B"
-  };
+  // 백엔드 API (Cosmos DB 기반, Firestore 미사용)
+  const API_BASE = 'https://listingdoctor-api-ecb2a7h5gsh8fwfm.koreacentral-01.azurewebsites.net';
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  // 관리자 키 (최초 1회 입력 후 localStorage에 저장)
+  let ADMIN_KEY = localStorage.getItem('admin_key') || '';
+
+  function ensureAdminKey() {
+    if (!ADMIN_KEY) {
+      ADMIN_KEY = window.prompt('관리자 키를 입력하세요') || '';
+      if (ADMIN_KEY) localStorage.setItem('admin_key', ADMIN_KEY);
+    }
+    return ADMIN_KEY;
+  }
+
+  async function adminFetch(path, options = {}) {
+    ensureAdminKey();
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Key': ADMIN_KEY,
+        ...(options.headers || {}),
+      },
+    });
+
+    if (res.status === 401) {
+      localStorage.removeItem('admin_key');
+      ADMIN_KEY = '';
+      showToast('관리자 키가 올바르지 않습니다. 새로고침 후 다시 시도하세요.');
+      throw new Error('관리자 인증 실패 (401)');
+    }
+    if (!res.ok) {
+      throw new Error(`요청 실패 (${res.status})`);
+    }
+    return res.json();
+  }
 
   // 전역 데이터
   let allAnalyses = [];
@@ -955,15 +974,11 @@
   // 대시보드 로드
   async function loadDashboard() {
     try {
-      const [snap, uSnap, lgSnap] = await Promise.all([
-        db.collection('analyses').orderBy('created_at', 'desc').limit(200).get(),
-        db.collection('users').get(),
-        db.collection('usage_logs').orderBy('created_at', 'desc').limit(100).get()
-      ]);
+      const data = await adminFetch('/admin/dashboard');
 
-      allAnalyses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      allUsers = uSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-      allUsageLogs = lgSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      allAnalyses = data.analyses || [];
+      allUsers = data.users || [];
+      allUsageLogs = data.usage_logs || [];
 
       renderStats();
       renderDailyChart();
@@ -1335,18 +1350,8 @@
   // ===== 가이드라인 관리 함수 =====
 
   async function loadGuidelines() {
-    const platforms = ['amazon_us', 'amazon_jp', 'shopee', 'lazada', 'rakuten'];
-
     try {
-      const guidelinePromises = platforms.map(async (platform) => {
-        const doc = await db.collection('guidelines').doc(platform).get();
-        if (doc.exists) {
-          return { platform, ...doc.data() };
-        }
-        return { platform, version: 'empty', guideline_data: {} };
-      });
-
-      allGuidelines = await Promise.all(guidelinePromises);
+      allGuidelines = await adminFetch('/admin/guidelines');
 
       // 플랫폼 목록 렌더링
       const platformNames = {
@@ -1431,15 +1436,10 @@
     }
 
     try {
-      const updateData = {
-        platform: currentGuideline.platform,
-        version: 'custom',
-        guideline_data: guidelineData,
-        updated_at: new Date(),
-        updated_by: 'admin_panel'
-      };
-
-      await db.collection('guidelines').doc(currentGuideline.platform).set(updateData);
+      await adminFetch(`/admin/guidelines/${currentGuideline.platform}`, {
+        method: 'PUT',
+        body: JSON.stringify({ guideline_data: guidelineData }),
+      });
 
       showToast('가이드라인 저장 완료');
 
