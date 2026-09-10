@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.js"></script>
   <style>
     :root {
       --indigo: #6366f1;
@@ -87,10 +88,7 @@
     .header-logo {
       font-size: 2.5rem;
       font-weight: 800;
-      background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-light) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--indigo);
       margin-bottom: 0.5rem;
       letter-spacing: -0.02em;
     }
@@ -123,6 +121,10 @@
       border-color: var(--indigo);
       background: #f5f5ff;
     }
+    .lang-toggle-btn svg {
+      width: 14px;
+      height: 14px;
+    }
 
     .main-content {
       transition: margin-left 0.3s ease;
@@ -152,6 +154,15 @@
       font-weight: 600;
       margin-bottom: 1.5rem;
       color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .card h2 svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--indigo);
     }
 
     .form-grid {
@@ -305,48 +316,73 @@
       margin-bottom: 3rem;
     }
     .landing-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-width: 640px;
+      margin: 0 auto;
     }
     .landing-choice-btn {
       position: relative;
-      padding: 3rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      width: 100%;
+      padding: 1.5rem;
       background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      text-align: left;
     }
     .landing-choice-btn:hover {
       border-color: var(--indigo);
-      background: linear-gradient(135deg, var(--card) 0%, rgba(99, 102, 241, 0.05) 100%);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.2);
+      background: #f5f5ff;
     }
     .landing-choice-icon {
-      font-size: 4rem;
-      margin-bottom: 1.5rem;
-      filter: grayscale(0.3);
-      transition: filter 0.3s;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--indigo);
     }
-    .landing-choice-btn:hover .landing-choice-icon {
-      filter: grayscale(0);
+    .landing-choice-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+    .landing-choice-text {
+      flex: 1;
+      min-width: 0;
     }
     .landing-choice-title {
-      font-size: 1.5rem;
-      font-weight: 700;
+      font-size: 1.0625rem;
+      font-weight: 600;
       color: var(--text);
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.25rem;
       letter-spacing: -0.01em;
       word-break: keep-all;
     }
     .landing-choice-desc {
       word-break: keep-all;
-      font-size: 1rem;
+      font-size: 0.875rem;
       color: var(--text-muted);
-      line-height: 1.6;
+      line-height: 1.5;
+    }
+    .landing-choice-chevron {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      transition: transform 0.15s ease, color 0.15s ease;
+    }
+    .landing-choice-btn:hover .landing-choice-chevron {
+      transform: translateX(2px);
+      color: var(--indigo);
     }
 
     .error-msg {
@@ -571,6 +607,10 @@
     .copy-btn.copied {
       background: var(--success);
     }
+    .copy-btn svg {
+      width: 16px;
+      height: 16px;
+    }
 
     .title-item {
       position: relative;
@@ -691,6 +731,10 @@
     }
     .table-after:hover .copy-btn-small {
       opacity: 1;
+    }
+    .copy-btn-small svg {
+      width: 14px;
+      height: 14px;
     }
 
     /* 입력 폼 축소 상태 - 결과 화면에서는 완전히 숨김 */
@@ -856,7 +900,16 @@
       font-weight: 700;
       margin-bottom: 1.5rem;
       color: var(--text);
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .slider-card h2 svg {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      color: var(--indigo);
     }
 
     /* 화살표 버튼 - 카드 양쪽에 오버레이 */
@@ -968,7 +1021,6 @@
     @media (max-width: 768px) {
       .form-grid, .result-grid, .card-overview, .card-issues, .summary-grid { grid-template-columns: 1fr; }
       .rx-compare { grid-template-columns: 1fr; }
-      .landing-buttons { grid-template-columns: 1fr; }
       .slider-card {
         padding: 0 2.5rem;
       }
@@ -1141,6 +1193,11 @@
       justify-content: center;
       gap: 0.5rem;
     }
+    .new-analysis-btn svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
     .new-analysis-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
@@ -1310,9 +1367,14 @@
       font-size: 0.875rem;
     }
     .history-empty-icon {
-      font-size: 3rem;
+      display: flex;
+      justify-content: center;
       margin-bottom: 1rem;
       opacity: 0.3;
+    }
+    .history-empty-icon svg {
+      width: 44px;
+      height: 44px;
     }
 
     /* 입력 요약 바 */
@@ -1341,6 +1403,11 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+    }
+    .input-summary-title svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
     }
     .input-summary-preview {
       font-size: 0.75rem;
@@ -1511,7 +1578,7 @@
     </div>
     <span class="aicon-badge" id="aiconBadge">AICON</span>
     <button class="new-analysis-btn" onclick="startNewAnalysis()">
-      ➕ 새로 시작하기
+      <i data-lucide="plus"></i> 새로 시작하기
     </button>
   </div>
 
@@ -1519,7 +1586,7 @@
     <h2 class="history-title" id="historyTitle">이력</h2>
     <div id="historyList">
       <div class="history-empty">
-        <div class="history-empty-icon">📋</div>
+        <div class="history-empty-icon"><i data-lucide="inbox"></i></div>
         이력이 없습니다
       </div>
     </div>
@@ -1534,7 +1601,7 @@
 <!-- 상단 헤더 -->
 <div class="top-header" id="topHeader">
   <button class="lang-toggle-btn" id="langToggleBtn" onclick="toggleLanguage()" title="Switch language / 언어 전환">
-    <span>🌐</span><span id="langToggleLabel">EN</span>
+    <i data-lucide="globe"></i><span id="langToggleLabel">EN</span>
   </button>
   <img src="aicon_logo_primary-01.png" alt="AICON" class="header-aicon-logo">
   <h1 class="header-logo">Listing Doctor</h1>
@@ -1551,14 +1618,20 @@
       <p class="landing-subtitle">원하는 기능을 선택해주세요</p>
       <div class="landing-buttons">
         <button class="landing-choice-btn" onclick="selectFeature('generate')">
-          <div class="landing-choice-icon">✨</div>
-          <div class="landing-choice-title">신규 등록 생성</div>
-          <div class="landing-choice-desc">상품 정보를 입력하면 최적화된 등록 정보를 자동 생성</div>
+          <div class="landing-choice-icon"><i data-lucide="sparkles"></i></div>
+          <div class="landing-choice-text">
+            <div class="landing-choice-title">신규 등록 생성</div>
+            <div class="landing-choice-desc">상품 정보를 입력하면 최적화된 등록 정보를 자동 생성</div>
+          </div>
+          <i data-lucide="chevron-right" class="landing-choice-chevron"></i>
         </button>
         <button class="landing-choice-btn" onclick="selectFeature('analyze')">
-          <div class="landing-choice-icon">🔍</div>
-          <div class="landing-choice-title">등록 정보 분석</div>
-          <div class="landing-choice-desc">기존 등록 정보의 문제점을 진단하고 개선안 제공</div>
+          <div class="landing-choice-icon"><i data-lucide="search"></i></div>
+          <div class="landing-choice-text">
+            <div class="landing-choice-title">등록 정보 분석</div>
+            <div class="landing-choice-desc">기존 등록 정보의 문제점을 진단하고 개선안 제공</div>
+          </div>
+          <i data-lucide="chevron-right" class="landing-choice-chevron"></i>
         </button>
       </div>
     </div>
@@ -1695,7 +1768,7 @@ IPX7 방수 등급으로 운동 중 땀이나 비에도 안심하고 사용할 �
       <div class="input-summary-header" onclick="toggleInputSummary()">
         <div>
           <span class="input-summary-title">
-            📝 입력 정보
+            <i data-lucide="file-text"></i> 입력 정보
             <span class="input-summary-preview" id="inputSummaryPreview"></span>
           </span>
         </div>
@@ -1715,7 +1788,7 @@ IPX7 방수 등급으로 운동 중 땀이나 비에도 안심하고 사용할 �
         <!-- 카드 1: 종합 점수 + 레이더 -->
         <div class="slider-card">
           <div class="slider-card-inner">
-            <h2>📊 종합 진단 결과</h2>
+            <h2><i data-lucide="chart-bar"></i> 종합 진단 결과</h2>
             <div class="card-overview">
               <div>
                 <div class="score-ring">
@@ -1743,7 +1816,7 @@ IPX7 방수 등급으로 운동 중 땀이나 비에도 안심하고 사용할 �
         <!-- 카드 2: 치명적 문제 + 가이드라인 위반 -->
         <div class="slider-card">
           <div class="slider-card-inner">
-            <h2>⚠️ 문제점 및 위반 사항</h2>
+            <h2><i data-lucide="triangle-alert"></i> 문제점 및 위반 사항</h2>
             <div class="card-issues">
               <div>
                 <div class="section-title">치명적 문제 Top 3</div>
@@ -1760,7 +1833,7 @@ IPX7 방수 등급으로 운동 중 땀이나 비에도 안심하고 사용할 �
         <!-- 카드 3: 긴급 처방전 -->
         <div class="slider-card">
           <div class="slider-card-inner">
-            <h2>💊 긴급 처방전</h2>
+            <h2><i data-lucide="pill"></i> 긴급 처방전</h2>
             <div id="rxList"></div>
           </div>
         </div>
@@ -1768,7 +1841,7 @@ IPX7 방수 등급으로 운동 중 땀이나 비에도 안심하고 사용할 �
         <!-- 카드 4: 최적화 상품명 + 키워드 -->
         <div class="slider-card">
           <div class="slider-card-inner">
-            <h2>✨ 최적화 상품명 & 키워드</h2>
+            <h2><i data-lucide="sparkles"></i> 최적화 상품명 & 키워드</h2>
             <div class="section-title">최적화 상품명</div>
             <div id="titlesList"></div>
             <div class="section-title" style="margin-top: 2rem;">마케팅 키워드</div>
@@ -1779,7 +1852,7 @@ IPX7 방수 등급으로 운동 중 땀이나 비에도 안심하고 사용할 �
         <!-- 카드 5: 가격 전략 -->
         <div class="slider-card">
           <div class="slider-card-inner">
-            <h2>💰 가격 전략</h2>
+            <h2><i data-lucide="tag"></i> 가격 전략</h2>
             <div class="price-strategy" id="priceStrategy"></div>
           </div>
         </div>
@@ -1794,7 +1867,7 @@ IPX7 방수 등급으로 운동 중 땀이나 비에도 안심하고 사용할 �
 
     <!-- 전체 Before/After 비교표 (슬라이더 외부) -->
     <div class="card" style="margin-top: 2rem;">
-      <h2>📋 전체 항목 Before & After</h2>
+      <h2><i data-lucide="table"></i> 전체 항목 Before & After</h2>
       <div id="fullComparisonTable"></div>
     </div>
   </div>
@@ -1821,7 +1894,7 @@ const TRANSLATIONS = {
   '문제가 지속되면 AICON 고객센터로 문의해주세요.': 'If the problem continues, please contact AICON support.',
 
   // 사이드바 (이력)
-  '➕ 새로 시작하기': '➕ Start New',
+  '새로 시작하기': 'Start New',
   '이력': 'History',
   '이력이 없습니다': 'No history yet',
   '생성 이력': 'Generation History',
@@ -1853,7 +1926,7 @@ const TRANSLATIONS = {
   '분석 중...': 'Analyzing...',
   'AI가 등록 정보를 분석하고 있습니다...': 'AI is analyzing your listing...',
   '← 다시 분석하기': '← Analyze again',
-  '📝 입력 정보': '📝 Input',
+  '입력 정보': 'Input',
   '상품명을 입력해주세요.': 'Please enter a product name.',
   '제품 설명을 입력해주세요.': 'Please enter a product description.',
   '제품 설명을 더 자세히 입력해주세요 (최소 50자).': 'Please write a more detailed description (at least 50 characters).',
@@ -1862,21 +1935,20 @@ const TRANSLATIONS = {
   '입력 정보를 불러올 수 없습니다': "Couldn't load input info",
 
   // 분석 결과
-  '📊 종합 진단 결과': '📊 Overall Diagnosis',
+  '종합 진단 결과': 'Overall Diagnosis',
   '6각 진단 차트': '6-Axis Diagnostic Chart',
-  '⚠️ 문제점 및 위반 사항': '⚠️ Issues & Violations',
+  '문제점 및 위반 사항': 'Issues & Violations',
   '치명적 문제 Top 3': 'Top 3 Critical Issues',
   '가이드라인 위반 항목': 'Guideline Violations',
   '치명적 문제가 발견되지 않았습니다.': 'No critical issues found.',
   '가이드라인 위반 사항이 없습니다.': 'No guideline violations found.',
-  '💊 긴급 처방전': '💊 Urgent Prescriptions',
-  '✨ 최적화 상품명 & 키워드': '✨ Optimized Titles & Keywords',
+  '긴급 처방전': 'Urgent Prescriptions',
+  '최적화 상품명 & 키워드': 'Optimized Titles & Keywords',
   '최적화 상품명': 'Optimized Titles',
   '추천 제목 1안': 'Suggested Title #1',
   '마케팅 키워드': 'Marketing Keywords',
-  '💰 가격 전략': '💰 Pricing Strategy',
   '가격 전략': 'Pricing Strategy',
-  '📋 전체 항목 Before & After': '📋 Full Before & After',
+  '전체 항목 Before & After': 'Full Before & After',
   '항목': 'Item',
   'Before (원본)': 'Before (Original)',
   'After (개선안)': 'After (Improved)',
@@ -1907,14 +1979,14 @@ const TRANSLATIONS = {
   '생성': 'Generate',
   '생성된 등록 정보': 'Generated Listing',
   '← 다시 생성하기': '← Generate again',
-  '📝 내가 입력한 내용 보기': '📝 View my input',
+  '내가 입력한 내용 보기': 'View my input',
   '불릿 포인트': 'Bullet Points',
-  '📋 전체 복사': '📋 Copy All',
-  '📋 복사': '📋 Copy',
-  '🇰🇷 한국어': '🇰🇷 Korean',
-  '🇰🇷 한국어·근거': '🇰🇷 Korean & Rationale',
-  '💡 작성 근거': '💡 Rationale',
-  '💡 추천 근거': '💡 Rationale',
+  '전체 복사': 'Copy All',
+  '복사': 'Copy',
+  '한국어': 'Korean',
+  '한국어·근거': 'Korean & Rationale',
+  '작성 근거': 'Rationale',
+  '추천 근거': 'Rationale',
   '추천 카테고리': 'Recommended Category',
   '검색 키워드': 'Search Keywords',
   '백엔드 키워드': 'Backend Keywords',
@@ -2122,38 +2194,38 @@ langObserver.observe(document.documentElement, { childList: true, subtree: true 
 // 플랫폼별 로딩 팁
 const PLATFORM_TIPS = {
   amazon_us: [
-    "💡 Amazon US는 키워드 밀도보다 자연스러운 문장 흐름을 선호합니다",
-    "💡 불릿 포인트는 구매 결정에 가장 큰 영향을 미치는 요소입니다",
-    "💡 상품명 첫 80자가 모바일 검색 결과에 표시됩니다",
-    "💡 Backend Search Terms는 중복 키워드를 제거하면 더 많은 키워드를 넣을 수 있습니다",
-    "💡 A+ Content를 활용하면 전환율이 평균 10% 상승합니다",
-    "💡 경쟁사 Best Seller의 리뷰를 분석하면 고객이 원하는 정보를 파악할 수 있습니다"
+    "Amazon US는 키워드 밀도보다 자연스러운 문장 흐름을 선호합니다",
+    "불릿 포인트는 구매 결정에 가장 큰 영향을 미치는 요소입니다",
+    "상품명 첫 80자가 모바일 검색 결과에 표시됩니다",
+    "Backend Search Terms는 중복 키워드를 제거하면 더 많은 키워드를 넣을 수 있습니다",
+    "A+ Content를 활용하면 전환율이 평균 10% 상승합니다",
+    "경쟁사 Best Seller의 리뷰를 분석하면 고객이 원하는 정보를 파악할 수 있습니다"
   ],
   amazon_jp: [
-    "💡 일본 고객은 상세한 스펙과 사이즈 정보를 중요하게 생각합니다",
-    "💡 정중한 경어 표현이 신뢰도를 높입니다",
-    "💡 상품명에 브랜드명을 명시하면 검색 노출이 증가합니다",
-    "💡 계절 키워드(春夏秋冬)를 활용하면 시즌 검색에 유리합니다",
-    "💡 일본어 특유의 의태어/의성어가 감성적 어필에 효과적입니다"
+    "일본 고객은 상세한 스펙과 사이즈 정보를 중요하게 생각합니다",
+    "정중한 경어 표현이 신뢰도를 높입니다",
+    "상품명에 브랜드명을 명시하면 검색 노출이 증가합니다",
+    "계절 키워드(春夏秋冬)를 활용하면 시즌 검색에 유리합니다",
+    "일본어 특유의 의태어/의성어가 감성적 어필에 효과적입니다"
   ],
   shopee: [
-    "💡 Shopee는 해시태그를 최대 20개까지 활용하세요",
-    "💡 첫 이미지가 CTR의 70%를 결정합니다",
-    "💡 가격 끝자리를 .99나 .88로 설정하면 심리적 효과가 있습니다",
-    "💡 라이브 방송 판매를 활용하면 노출이 급증합니다",
-    "💡 현지 SNS 트렌드 키워드를 등록 정보에 반영하세요"
+    "Shopee는 해시태그를 최대 20개까지 활용하세요",
+    "첫 이미지가 CTR의 70%를 결정합니다",
+    "가격 끝자리를 .99나 .88로 설정하면 심리적 효과가 있습니다",
+    "라이브 방송 판매를 활용하면 노출이 급증합니다",
+    "현지 SNS 트렌드 키워드를 등록 정보에 반영하세요"
   ],
   lazada: [
-    "💡 Lazada는 프로모션 배지가 클릭률에 큰 영향을 미칩니다",
-    "💡 상품 동영상을 추가하면 전환율이 30% 증가합니다",
-    "💡 긴 상품 설명보다 명확한 특징 3가지가 더 효과적입니다",
-    "💡 Flash Sale 시간대를 활용하면 트래픽이 10배 증가합니다"
+    "Lazada는 프로모션 배지가 클릭률에 큰 영향을 미칩니다",
+    "상품 동영상을 추가하면 전환율이 30% 증가합니다",
+    "긴 상품 설명보다 명확한 특징 3가지가 더 효과적입니다",
+    "Flash Sale 시간대를 활용하면 트래픽이 10배 증가합니다"
   ],
   rakuten: [
-    "💡 라쿠텐은 상세 페이지의 세로 길이가 길수록 신뢰도가 높아집니다",
-    "💡 배송 옵션을 다양화하면 장바구니 포기율이 감소합니다",
-    "💡 리뷰 개수가 50개를 넘으면 전환율이 급증합니다",
-    "💡 포인트 적립 혜택을 강조하면 구매 결정에 도움이 됩니다"
+    "라쿠텐은 상세 페이지의 세로 길이가 길수록 신뢰도가 높아집니다",
+    "배송 옵션을 다양화하면 장바구니 포기율이 감소합니다",
+    "리뷰 개수가 50개를 넘으면 전환율이 급증합니다",
+    "포인트 적립 혜택을 강조하면 구매 결정에 도움이 됩니다"
   ]
 };
 
@@ -2169,23 +2241,25 @@ function showLoadingTips(platform, containerId) {
       <div style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">
         AI가 등록 정보를 분석하고 있습니다...
       </div>
-      <div id="rotatingTip" style="font-size: 0.9375rem; color: var(--text-secondary); min-height: 3rem; display: flex; align-items: center; justify-content: center; line-height: 1.6;">
-        ${tips[0]}
+      <div id="rotatingTip" style="font-size: 0.9375rem; color: var(--text-secondary); min-height: 3rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; line-height: 1.6;">
+        <i data-lucide="lightbulb" style="flex-shrink: 0;"></i><span id="rotatingTipText">${tips[0]}</span>
       </div>
     </div>
   `;
 
   document.getElementById(containerId).insertAdjacentHTML('beforeend', loadingHtml);
+  lucide.createIcons();
 
   // 팁 로테이션
   tipInterval = setInterval(() => {
     currentTipIndex = (currentTipIndex + 1) % tips.length;
-    const tipEl = document.getElementById('rotatingTip');
-    if (tipEl) {
-      tipEl.style.opacity = '0';
+    const tipEl = document.getElementById('rotatingTipText');
+    const wrapEl = document.getElementById('rotatingTip');
+    if (tipEl && wrapEl) {
+      wrapEl.style.opacity = '0';
       setTimeout(() => {
         tipEl.textContent = tips[currentTipIndex];
-        tipEl.style.opacity = '1';
+        wrapEl.style.opacity = '1';
       }, 300);
     }
   }, 4000);
@@ -2534,8 +2608,8 @@ function displayGeneratedListing(data) {
       ${originalInput.product_name || originalInput.description ? `
       <!-- 원본 입력 정보 -->
       <details style="margin-bottom: 1.5rem; padding: 1rem; background: var(--card-hover); border-radius: 8px; border: 1px solid var(--border);">
-        <summary style="cursor: pointer; font-weight: 600; color: var(--text-secondary); user-select: none;">
-          📝 내가 입력한 내용 보기
+        <summary style="cursor: pointer; font-weight: 600; color: var(--text-secondary); user-select: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+          <i data-lucide="file-text" style="width: 15px; height: 15px;"></i> 내가 입력한 내용 보기
         </summary>
         <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
           ${originalInput.product_name ? `
@@ -2559,16 +2633,16 @@ function displayGeneratedListing(data) {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <label style="margin-bottom: 0;">상품명</label>
           <button onclick="copyToClipboard('${listing.optimized_title.replace(/'/g, "\\'")}')"
-                  style="padding: 0.375rem 0.75rem; font-size: 0.8125rem; background: var(--card); color: var(--text-secondary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">
-            📋 복사
+                  style="padding: 0.375rem 0.75rem; font-size: 0.8125rem; background: var(--card); color: var(--text-secondary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+            <i data-lucide="copy" style="width: 14px; height: 14px;"></i> 복사
           </button>
         </div>
         <textarea readonly style="font-weight: 600; color: var(--indigo); margin-bottom: 0.5rem;">${listing.optimized_title}</textarea>
         <details style="margin-top: 0.5rem;">
-          <summary style="cursor: pointer; font-size: 0.8125rem; color: var(--text-muted); user-select: none;">🇰🇷 한국어·근거</summary>
+          <summary style="cursor: pointer; font-size: 0.8125rem; color: var(--text-muted); user-select: none;">한국어·근거</summary>
           <div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--bg); border-radius: 6px; border: 1px solid var(--border);">
             <div style="color: var(--text-secondary); margin-bottom: 0.75rem; font-size: 0.9375rem;">${listing.optimized_title_korean}</div>
-            <div style="color: var(--text-muted); font-size: 0.8125rem; margin-bottom: 0.25rem;">💡 작성 근거</div>
+            <div style="color: var(--text-muted); font-size: 0.8125rem; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.3rem;"><i data-lucide="lightbulb" style="width: 13px; height: 13px;"></i> 작성 근거</div>
             <div style="color: var(--text-secondary); font-size: 0.875rem;">${listing.title_reason}</div>
           </div>
         </details>
@@ -2579,8 +2653,8 @@ function displayGeneratedListing(data) {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <label style="margin-bottom: 0;">불릿 포인트</label>
           <button onclick="copyToClipboard(\`${listing.bullet_points.map(bp => bp.english).join('\\n')}\`)"
-                  style="padding: 0.375rem 0.75rem; font-size: 0.8125rem; background: var(--card); color: var(--text-secondary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">
-            📋 전체 복사
+                  style="padding: 0.375rem 0.75rem; font-size: 0.8125rem; background: var(--card); color: var(--text-secondary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+            <i data-lucide="copy" style="width: 14px; height: 14px;"></i> 전체 복사
           </button>
         </div>
         ${listing.bullet_points.map((bp, i) => `
@@ -2588,10 +2662,10 @@ function displayGeneratedListing(data) {
             <div style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.25rem;">불릿 ${i + 1}</div>
             <textarea readonly style="margin-bottom: 0.5rem;">${bp.english}</textarea>
             <details>
-              <summary style="cursor: pointer; font-size: 0.8125rem; color: var(--text-muted); user-select: none;">🇰🇷 한국어·근거</summary>
+              <summary style="cursor: pointer; font-size: 0.8125rem; color: var(--text-muted); user-select: none;">한국어·근거</summary>
               <div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--bg); border-radius: 6px; border: 1px solid var(--border);">
                 <div style="color: var(--text-secondary); margin-bottom: 0.75rem; font-size: 0.9375rem;">${bp.korean}</div>
-                <div style="color: var(--text-muted); font-size: 0.8125rem; margin-bottom: 0.25rem;">💡 작성 근거</div>
+                <div style="color: var(--text-muted); font-size: 0.8125rem; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.3rem;"><i data-lucide="lightbulb" style="width: 13px; height: 13px;"></i> 작성 근거</div>
                 <div style="color: var(--text-secondary); font-size: 0.875rem;">${bp.reason}</div>
               </div>
             </details>
@@ -2604,13 +2678,13 @@ function displayGeneratedListing(data) {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <label style="margin-bottom: 0;">상품 설명</label>
           <button onclick="copyToClipboard(\`${listing.description.replace(/`/g, '\\`')}\`)"
-                  style="padding: 0.375rem 0.75rem; font-size: 0.8125rem; background: var(--card); color: var(--text-secondary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">
-            📋 복사
+                  style="padding: 0.375rem 0.75rem; font-size: 0.8125rem; background: var(--card); color: var(--text-secondary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+            <i data-lucide="copy" style="width: 14px; height: 14px;"></i> 복사
           </button>
         </div>
         <textarea readonly rows="6" style="margin-bottom: 0.5rem;">${listing.description}</textarea>
         <details>
-          <summary style="cursor: pointer; font-size: 0.8125rem; color: var(--text-muted); user-select: none;">🇰🇷 한국어</summary>
+          <summary style="cursor: pointer; font-size: 0.8125rem; color: var(--text-muted); user-select: none;">한국어</summary>
           <div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--bg); border-radius: 6px; border: 1px solid var(--border);">
             <div style="color: var(--text-secondary); font-size: 0.9375rem;">${listing.description_korean}</div>
           </div>
@@ -2622,7 +2696,7 @@ function displayGeneratedListing(data) {
         <label>추천 카테고리</label>
         <textarea readonly style="font-weight: 600; margin-bottom: 0.5rem;">${listing.recommended_category}</textarea>
         <details>
-          <summary style="cursor: pointer; font-size: 0.8125rem; color: var(--text-muted); user-select: none;">💡 추천 근거</summary>
+          <summary style="cursor: pointer; font-size: 0.8125rem; color: var(--text-muted); user-select: none; display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="lightbulb" style="width: 13px; height: 13px;"></i> 추천 근거</summary>
           <div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--bg); border-radius: 6px; border: 1px solid var(--border);">
             <div style="color: var(--text-secondary); font-size: 0.9375rem;">${listing.category_reason}</div>
           </div>
@@ -2634,8 +2708,8 @@ function displayGeneratedListing(data) {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <label style="margin-bottom: 0;">검색 키워드</label>
           <button onclick="copyToClipboard('${listing.search_terms.replace(/'/g, "\\'")}' )"
-                  style="padding: 0.375rem 0.75rem; font-size: 0.8125rem; background: var(--card); color: var(--text-secondary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">
-            📋 복사
+                  style="padding: 0.375rem 0.75rem; font-size: 0.8125rem; background: var(--card); color: var(--text-secondary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+            <i data-lucide="copy" style="width: 14px; height: 14px;"></i> 복사
           </button>
         </div>
         <textarea readonly>${listing.search_terms}</textarea>
@@ -2678,6 +2752,7 @@ function displayGeneratedListing(data) {
 
   // 새 결과 추가
   generateTab.insertAdjacentHTML('beforeend', html);
+  lucide.createIcons();
 
   // 결과로 스크롤
   setTimeout(() => {
@@ -2755,8 +2830,8 @@ async function loadHistoryForFeature(userId, feature) {
     renderHistory(filteredHistory, feature);
   } catch (e) {
     console.error('[ERROR] 이력 로드 오류:', e);
-    const icon = feature === 'generate' ? '✨' : '🔍';
-    document.getElementById('historyList').innerHTML = `<div class="history-empty"><div class="history-empty-icon">❌</div>이력을 불러올 수 없습니다</div>`;
+    document.getElementById('historyList').innerHTML = `<div class="history-empty"><div class="history-empty-icon"><i data-lucide="circle-x"></i></div>이력을 불러올 수 없습니다</div>`;
+    lucide.createIcons();
   }
 }
 
@@ -2780,7 +2855,7 @@ function renderHistory(history, type) {
   console.log('[DEBUG] renderHistory 호출:', type, history.length, '건');
 
   const listEl = document.getElementById('historyList');
-  const emptyIcon = type === 'generate' ? '✨' : '🔍';
+  const emptyIcon = type === 'generate' ? 'sparkles' : 'search';
   const emptyText = type === 'generate' ? '생성 이력이 없습니다' : '분석 이력이 없습니다';
 
   if (!listEl) {
@@ -2790,7 +2865,8 @@ function renderHistory(history, type) {
 
   if (!history || history.length === 0) {
     console.log('[DEBUG] 이력 없음 - 빈 상태 표시');
-    listEl.innerHTML = `<div class="history-empty"><div class="history-empty-icon">${emptyIcon}</div>${emptyText}</div>`;
+    listEl.innerHTML = `<div class="history-empty"><div class="history-empty-icon"><i data-lucide="${emptyIcon}"></i></div>${emptyText}</div>`;
+    lucide.createIcons();
     return;
   }
 
@@ -3600,23 +3676,25 @@ async function submitAnalysis() {
       <div style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">
         AI가 등록 정보를 분석하고 있습니다...
       </div>
-      <div id="analysisTip" style="font-size: 0.9375rem; color: var(--text-secondary); min-height: 3rem; display: flex; align-items: center; justify-content: center; line-height: 1.6; transition: opacity 0.3s ease-in-out;">
-        ${tips[0]}
+      <div id="analysisTip" style="font-size: 0.9375rem; color: var(--text-secondary); min-height: 3rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; line-height: 1.6; transition: opacity 0.3s ease-in-out;">
+        <i data-lucide="lightbulb" style="flex-shrink: 0;"></i><span id="analysisTipText">${tips[0]}</span>
       </div>
     </div>
   `;
 
   loadingEl.style.display = 'block';
+  lucide.createIcons();
 
   // 팁 로테이션
   const tipRotation = setInterval(() => {
     currentTipIndex = (currentTipIndex + 1) % tips.length;
-    const tipEl = document.getElementById('analysisTip');
-    if (tipEl) {
-      tipEl.style.opacity = '0';
+    const tipEl = document.getElementById('analysisTipText');
+    const wrapEl = document.getElementById('analysisTip');
+    if (tipEl && wrapEl) {
+      wrapEl.style.opacity = '0';
       setTimeout(() => {
         tipEl.textContent = tips[currentTipIndex];
-        tipEl.style.opacity = '1';
+        wrapEl.style.opacity = '1';
       }, 300);
     }
   }, 4000);
@@ -3743,12 +3821,12 @@ function renderResult(data) {
         <div class="rx-box rx-improved">
           <div class="rx-box-label">After</div>
           ${esc(p.improved)}
-          <button class="copy-btn" onclick="copyText(this, '${escAttr(p.improved)}')">📋</button>
+          <button class="copy-btn" onclick="copyText(this, '${escAttr(p.improved)}')"><i data-lucide="copy"></i></button>
         </div>
       </div>
       <div class="rx-reason">
         ${esc(p.reason)}
-        ${p.guideline_reference ? `<div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted); font-family: monospace;">📋 가이드라인 참조: ${esc(p.guideline_reference)}</div>` : ''}
+        ${p.guideline_reference ? `<div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted); font-family: monospace; display: flex; align-items: center; gap: 0.3rem;"><i data-lucide="book-open" style="width: 12px; height: 12px;"></i> 가이드라인 참조: ${esc(p.guideline_reference)}</div>` : ''}
       </div>
     </div>
   `).join('');
@@ -3756,15 +3834,17 @@ function renderResult(data) {
   document.getElementById('titlesList').innerHTML = data.optimized_titles.map((t, i) => `
     <div class="title-item">
       <span>${i + 1}. ${esc(t)}</span>
-      <button class="copy-btn" onclick="copyText(this, '${escAttr(t)}')">📋</button>
+      <button class="copy-btn" onclick="copyText(this, '${escAttr(t)}')"><i data-lucide="copy"></i></button>
     </div>
   `).join('');
 
   document.getElementById('kwGrid').innerHTML = data.keywords
-    .map(k => `<span class="kw-tag">${esc(k)}<button class="copy-btn" onclick="copyText(this, '${escAttr(k)}')">📋</button></span>`)
+    .map(k => `<span class="kw-tag">${esc(k)}<button class="copy-btn" onclick="copyText(this, '${escAttr(k)}')"><i data-lucide="copy"></i></button></span>`)
     .join('');
 
   document.getElementById('priceStrategy').textContent = data.price_strategy;
+
+  lucide.createIcons();
 
   // 6번 카드: 전체 비교표 렌더링
   renderFullComparisonTable(data);
@@ -3802,7 +3882,7 @@ function renderFullComparisonTable(data) {
     html += `<td class="table-before">${esc(p.original)}</td>`;
     html += `<td class="table-after">
       ${esc(p.improved)}
-      <button class="copy-btn copy-btn-small" onclick="copyText(this, '${escAttr(p.improved)}')">📋</button>
+      <button class="copy-btn copy-btn-small" onclick="copyText(this, '${escAttr(p.improved)}')"><i data-lucide="copy"></i></button>
     </td>`;
     html += '</tr>';
   });
@@ -3817,7 +3897,7 @@ function renderFullComparisonTable(data) {
     html += `<td class="table-before">${esc(originalTitle)}</td>`;
     html += `<td class="table-after">
       ${esc(data.optimized_titles[0])}
-      <button class="copy-btn copy-btn-small" onclick="copyText(this, '${escAttr(data.optimized_titles[0])}')">📋</button>
+      <button class="copy-btn copy-btn-small" onclick="copyText(this, '${escAttr(data.optimized_titles[0])}')"><i data-lucide="copy"></i></button>
     </td>`;
     html += '</tr>';
 
@@ -3828,7 +3908,7 @@ function renderFullComparisonTable(data) {
       html += '<td class="table-before">-</td>';
       html += `<td class="table-after">
         ${esc(data.optimized_titles[i])}
-        <button class="copy-btn copy-btn-small" onclick="copyText(this, '${escAttr(data.optimized_titles[i])}')">📋</button>
+        <button class="copy-btn copy-btn-small" onclick="copyText(this, '${escAttr(data.optimized_titles[i])}')"><i data-lucide="copy"></i></button>
       </td>`;
       html += '</tr>';
     }
@@ -3842,7 +3922,7 @@ function renderFullComparisonTable(data) {
     html += '<td class="table-before">-</td>';
     html += `<td class="table-after">
       ${esc(keywordsStr)}
-      <button class="copy-btn copy-btn-small" onclick="copyText(this, '${escAttr(keywordsStr)}')">📋</button>
+      <button class="copy-btn copy-btn-small" onclick="copyText(this, '${escAttr(keywordsStr)}')"><i data-lucide="copy"></i></button>
     </td>`;
     html += '</tr>';
   }
@@ -3864,6 +3944,7 @@ function renderFullComparisonTable(data) {
   html += '</div>';
 
   tableContainer.innerHTML = html;
+  lucide.createIcons();
 }
 
 function drawRadar(scores) {
@@ -4010,11 +4091,13 @@ function escAttr(str) {
 }
 function copyText(el, text) {
   navigator.clipboard.writeText(text).then(() => {
-    el.textContent = '✓';
+    el.innerHTML = '<i data-lucide="check"></i>';
     el.classList.add('copied');
+    lucide.createIcons();
     setTimeout(() => {
-      el.textContent = '📋';
+      el.innerHTML = '<i data-lucide="copy"></i>';
       el.classList.remove('copied');
+      lucide.createIcons();
     }, 1200);
   });
 }
@@ -4052,6 +4135,9 @@ function toggleLangDetails(icon) {
     content.classList.toggle('open');
   }
 }
+
+// 아이콘 렌더링 (정적 마크업에 있는 data-lucide 엘리먼트)
+lucide.createIcons();
 
 // 저장된 언어 설정 적용 (파일 앞부분 함수 선언 이후, 다른 초기화와 함께 실행)
 setLanguage(currentLang);
