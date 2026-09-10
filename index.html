@@ -106,10 +106,10 @@
       align-items: center;
       gap: 0.35rem;
       padding: 0.4rem 0.8rem;
-      border: 1px solid var(--border);
+      border: 1px solid var(--indigo);
       border-radius: 999px;
-      background: #ffffff;
-      color: var(--text-primary);
+      background: var(--indigo);
+      color: #ffffff;
       font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
@@ -118,8 +118,8 @@
     }
 
     .lang-toggle-btn:hover {
-      border-color: var(--indigo);
-      background: #f5f5ff;
+      border-color: var(--indigo-dark);
+      background: var(--indigo-dark);
     }
     .lang-toggle-btn svg {
       width: 14px;
@@ -1970,6 +1970,12 @@ const TRANSLATIONS = {
   '가격': 'Price',
   '상품명': 'Product Name',
   '상품 설명': 'Description',
+
+  // 신규 등록 생성 폼 (입력 예시/안내 문구)
+  '예시:\n프리미엄 노이즈 캔슬링 기능이 탑재된 무선 이어폰입니다.\n최대 30시간 연속 재생이 가능한 대용량 배터리로 하루 종일 음악을 즐길 수 있습니다.\nIPX7 방수 등급으로 운동 중 땀이나 비에도 안심하고 사용할 수 있습니다.\n터치 센서 방식으로 간편하게 재생, 일시정지, 볼륨 조절이 가능합니다.\n고음질 AAC 코덱을 지원하여 선명한 사운드를 제공합니다.\n인체공학적 디자인으로 장시간 착용해도 편안합니다.':
+    'e.g.:\nWireless earbuds with premium noise cancelling.\nUp to 30 hours of continuous playback on a single charge for all-day listening.\nIPX7 waterproof rating lets you use them confidently during workouts or in the rain.\nTouch controls for easy play, pause, and volume adjustment.\nHigh-quality AAC codec support for crisp, clear sound.\nErgonomic design stays comfortable even during long listening sessions.',
+  '제품의 특징, 기능, 장점을 자유롭게 설명해주세요. AI가 영어 bullet points로 변환합니다.':
+    "Describe the product's features, functions, and benefits freely. AI will convert this into English bullet points.",
 
   // 신규 등록 생성
   '신규 등록 생성': 'Create New Listing',
