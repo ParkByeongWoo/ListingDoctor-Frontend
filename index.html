@@ -340,8 +340,10 @@
       color: var(--text);
       margin-bottom: 0.75rem;
       letter-spacing: -0.01em;
+      word-break: keep-all;
     }
     .landing-choice-desc {
+      word-break: keep-all;
       font-size: 1rem;
       color: var(--text-muted);
       line-height: 1.6;
@@ -966,6 +968,7 @@
     @media (max-width: 768px) {
       .form-grid, .result-grid, .card-overview, .card-issues, .summary-grid { grid-template-columns: 1fr; }
       .rx-compare { grid-template-columns: 1fr; }
+      .landing-buttons { grid-template-columns: 1fr; }
       .slider-card {
         padding: 0 2.5rem;
       }
@@ -978,6 +981,20 @@
       }
       #nextBtn {
         right: 0.25rem;
+      }
+
+      /* 좁은 화면에서 AICON 로고가 제목과 겹치는 문제 - 로고를 제목 위로 올림 */
+      .header-aicon-logo {
+        position: static;
+        display: block;
+        margin: 0 auto 0.75rem;
+      }
+      .header-logo {
+        font-size: 1.75rem;
+      }
+      .lang-toggle-btn {
+        top: 0.75rem;
+        right: 0.75rem;
       }
     }
 
