@@ -1558,7 +1558,7 @@
       AICON 로그인이 필요합니다.<br>
       아래 버튼을 클릭하여 다시 로그인해주세요.
     </p>
-    <a href="https://dev.aicon.or.kr/auth/login" class="auth-error-btn">AICON으로 돌아가기</a>
+    <a href="https://aicon.or.kr/auth/login" class="auth-error-btn">AICON으로 돌아가기</a>
     <p class="auth-error-footer">문제가 지속되면 AICON 고객센터로 문의해주세요.</p>
   </div>
 </div>
@@ -1655,6 +1655,7 @@
           <select id="genPlatform" onchange="updateGenerateCountryOptions()">
             <option value="amazon_us">Amazon US</option>
             <option value="amazon_jp">Amazon JP</option>
+            <option value="amazon_eu">Amazon EU</option>
             <option value="shopee">Shopee (동남아)</option>
             <option value="lazada">Lazada (동남아)</option>
             <option value="rakuten">라쿠텐 (일본)</option>
@@ -1730,6 +1731,7 @@ IPX7 방수 등급으로 운동 중 땀이나 비에도 안심하고 사용할 �
         <select id="platform" onchange="switchPlatform()">
           <option value="amazon_us">Amazon US</option>
           <option value="amazon_jp">Amazon JP</option>
+          <option value="amazon_eu">Amazon EU</option>
           <option value="shopee">Shopee (동남아)</option>
           <option value="lazada">Lazada (동남아)</option>
           <option value="rakuten">라쿠텐 (일본)</option>
@@ -2026,6 +2028,24 @@ const TRANSLATIONS = {
   'Lazada (동남아)': 'Lazada (Southeast Asia)',
   '라쿠텐 (일본)': 'Rakuten (Japan)',
   '라쿠텐': 'Rakuten',
+  '독일 (DE)': 'Germany (DE)',
+  '프랑스 (FR)': 'France (FR)',
+  '이탈리아 (IT)': 'Italy (IT)',
+  '스페인 (ES)': 'Spain (ES)',
+  '네덜란드 (NL)': 'Netherlands (NL)',
+  '스웨덴 (SE)': 'Sweden (SE)',
+  '폴란드 (PL)': 'Poland (PL)',
+  '벨기에 (BE)': 'Belgium (BE)',
+  '아일랜드 (IE)': 'Ireland (IE)',
+  '독일': 'Germany',
+  '프랑스': 'France',
+  '이탈리아': 'Italy',
+  '스페인': 'Spain',
+  '네덜란드': 'Netherlands',
+  '스웨덴': 'Sweden',
+  '폴란드': 'Poland',
+  '벨기에': 'Belgium',
+  '아일랜드': 'Ireland',
 
   // 생성 폼: 플랫폼별 필드 라벨 (한국어 부분만 번역, 현지어 예시는 그대로 유지)
   '상품명 (Tên sản phẩm)': 'Product Name (Tên sản phẩm)',
@@ -2049,6 +2069,9 @@ const TRANSLATIONS = {
   '불릿 포인트 3 (Bullet Point 3)': 'Bullet Point 3',
   '불릿 포인트 4 (Bullet Point 4)': 'Bullet Point 4',
   '불릿 포인트 5 (Bullet Point 5)': 'Bullet Point 5',
+  'EU Responsible Person 이름 (GPSR 필수)': 'EU Responsible Person Name (GPSR required)',
+  'EU Responsible Person 주소 (GPSR 필수)': 'EU Responsible Person Address (GPSR required)',
+  'EPR 등록번호 (생산자책임재활용)': 'EPR Registration Number (Extended Producer Responsibility)',
   '불릿 포인트 1 (商品仕様 1)': 'Bullet Point 1 (商品仕様 1)',
   '불릿 포인트 2 (商品仕様 2)': 'Bullet Point 2 (商品仕様 2)',
   '불릿 포인트 3 (商品仕様 3)': 'Bullet Point 3 (商品仕様 3)',
@@ -2213,6 +2236,12 @@ const PLATFORM_TIPS = {
     "상품명에 브랜드명을 명시하면 검색 노출이 증가합니다",
     "계절 키워드(春夏秋冬)를 활용하면 시즌 검색에 유리합니다",
     "일본어 특유의 의태어/의성어가 감성적 어필에 효과적입니다"
+  ],
+  amazon_eu: [
+    "EU 역외 셀러는 GPSR상 Responsible Person 이름/주소가 없으면 리스팅이 48시간 내 강제 중단됩니다",
+    "포장재 EPR 등록번호는 2026-08-12부터 없으면 경고 없이 리스팅이 비활성화됩니다",
+    "Amazon EU는 하나의 계정으로 9개국을 관리하지만, 콘텐츠는 마켓플레이스(언어)별로 따로 작성해야 합니다",
+    "전자제품은 EPREL 에너지라벨 등록번호, 화장품은 INCI 성분 표기가 필요합니다"
   ],
   shopee: [
     "Shopee는 해시태그를 최대 20개까지 활용하세요",
@@ -2488,6 +2517,17 @@ function updateGenerateCountryOptions() {
   const options = {
     'amazon_us': [{ value: 'US', label: '미국 (US)' }],
     'amazon_jp': [{ value: 'JP', label: '일본 (JP)' }],
+    'amazon_eu': [
+      { value: 'DE', label: '독일 (DE)' },
+      { value: 'FR', label: '프랑스 (FR)' },
+      { value: 'IT', label: '이탈리아 (IT)' },
+      { value: 'ES', label: '스페인 (ES)' },
+      { value: 'NL', label: '네덜란드 (NL)' },
+      { value: 'SE', label: '스웨덴 (SE)' },
+      { value: 'PL', label: '폴란드 (PL)' },
+      { value: 'BE', label: '벨기에 (BE)' },
+      { value: 'IE', label: '아일랜드 (IE)' }
+    ],
     'shopee': [
       { value: 'SG', label: '싱가포르 (SG)' },
       { value: 'MY', label: '말레이시아 (MY)' },
@@ -3160,6 +3200,24 @@ const PLATFORM_CONFIG = {
       { name: 'search_terms', label: '검색 키워드 (検索キーワード)', type: 'textarea', maxlength: 250 },
     ]
   },
+  amazon_eu: {
+    countries: ['DE', 'FR', 'IT', 'ES', 'NL', 'SE', 'PL', 'BE', 'IE'],
+    fields: [
+      { name: 'title', label: '상품명 (Product Name)', type: 'input', maxlength: 200 },
+      { name: 'price', label: '가격 (Price)', type: 'input', maxlength: 20, hasPrefix: true },
+      { name: 'category', label: '카테고리 (Category)', type: 'input', maxlength: 100 },
+      { name: 'bullet1', label: '불릿 포인트 1 (Bullet Point 1)', type: 'textarea', maxlength: 500 },
+      { name: 'bullet2', label: '불릿 포인트 2 (Bullet Point 2)', type: 'textarea', maxlength: 500 },
+      { name: 'bullet3', label: '불릿 포인트 3 (Bullet Point 3)', type: 'textarea', maxlength: 500 },
+      { name: 'bullet4', label: '불릿 포인트 4 (Bullet Point 4)', type: 'textarea', maxlength: 500 },
+      { name: 'bullet5', label: '불릿 포인트 5 (Bullet Point 5)', type: 'textarea', maxlength: 500 },
+      { name: 'description', label: '상품 설명 (Description)', type: 'textarea', maxlength: 2000 },
+      { name: 'search_terms', label: '검색어 (Search Terms)', type: 'textarea', maxlength: 250 },
+      { name: 'responsible_person_name', label: 'EU Responsible Person 이름 (GPSR 필수)', type: 'input', maxlength: 200 },
+      { name: 'responsible_person_address', label: 'EU Responsible Person 주소 (GPSR 필수)', type: 'input', maxlength: 300 },
+      { name: 'epr_registration_number', label: 'EPR 등록번호 (생산자책임재활용)', type: 'input', maxlength: 100 },
+    ]
+  },
   shopee: {
     countries: ['SG', 'MY', 'TH', 'VN', 'PH', 'TW', 'BR'],
     fields: [
@@ -3197,7 +3255,9 @@ const PLATFORM_CONFIG = {
 
 const COUNTRY_LABELS = {
   US: '미국', JP: '일본', SG: '싱가포르', MY: '말레이시아',
-  TH: '태국', VN: '베트남', PH: '필리핀', TW: '대만', BR: '브라질'
+  TH: '태국', VN: '베트남', PH: '필리핀', TW: '대만', BR: '브라질',
+  DE: '독일', FR: '프랑스', IT: '이탈리아', ES: '스페인',
+  NL: '네덜란드', SE: '스웨덴', PL: '폴란드', BE: '벨기에', IE: '아일랜드'
 };
 
 // 국가별 기본 통화 매핑
@@ -3210,7 +3270,16 @@ const COUNTRY_CURRENCY = {
   TW: 'TWD',
   BR: 'BRL',
   JP: 'JPY',
-  US: 'USD'
+  US: 'USD',
+  DE: 'EUR',
+  FR: 'EUR',
+  IT: 'EUR',
+  ES: 'EUR',
+  NL: 'EUR',
+  BE: 'EUR',
+  IE: 'EUR',
+  SE: 'SEK',
+  PL: 'PLN'
 };
 
 // 통화별 심볼
@@ -3221,7 +3290,10 @@ const CURRENCY_SYMBOL = {
   SGD: 'S$',
   PHP: '₱',
   JPY: '¥',
-  USD: '$'
+  USD: '$',
+  EUR: '€',
+  SEK: 'kr',
+  PLN: 'zł'
 };
 
 // 통화별 가격 입력 예시
@@ -3232,7 +3304,10 @@ const CURRENCY_PLACEHOLDER = {
   SGD: '19.90',
   PHP: '499',
   JPY: '1,980',
-  USD: '9.99'
+  USD: '9.99',
+  EUR: '29.99',
+  SEK: '299',
+  PLN: '99.99'
 };
 
 // 국가별 현지어 라벨 매핑 (Shopee/Lazada용)
@@ -3366,6 +3441,7 @@ function collapseForm() {
   const platformNames = {
     'amazon_us': 'Amazon US',
     'amazon_jp': 'Amazon JP',
+    'amazon_eu': 'Amazon EU',
     'shopee': 'Shopee',
     'lazada': 'Lazada',
     'rakuten': '라쿠텐'
@@ -3374,6 +3450,7 @@ function collapseForm() {
   const platformIcons = {
     'amazon_us': 'A',
     'amazon_jp': 'A',
+    'amazon_eu': 'A',
     'shopee': 'S',
     'lazada': 'L',
     'rakuten': 'R'
