@@ -1558,7 +1558,7 @@
       AICON 로그인이 필요합니다.<br>
       아래 버튼을 클릭하여 다시 로그인해주세요.
     </p>
-    <a href="https://aicon.or.kr/auth/login" class="auth-error-btn">AICON으로 돌아가기</a>
+    <a href="https://aicon.or.kr/auth/login" id="authErrorLoginLink" class="auth-error-btn">AICON으로 돌아가기</a>
     <p class="auth-error-footer">문제가 지속되면 AICON 고객센터로 문의해주세요.</p>
   </div>
 </div>
@@ -2314,8 +2314,25 @@ function hideLoadingTips() {
 // AICON 모드 처리
 let USER_KEY = null;
 
+const AICON_LOGIN_URL = 'https://aicon.or.kr/auth/login';
+const AICON_CLIENT_ID = 'MjAyNjA3MzAwNDQ2MzJfMjAwMmZiYzdlYTk2NGQ0NjliMDQ0MTM3ZDZiOGE1Mzk=';
+// 마이크로사이트 등록 URL 및 백엔드 AICON_REDIRECT_URI와 글자 단위로 동일해야 함
+const AICON_REDIRECT_URI = 'https://salmon-sea-02a5b4500.7.azurestaticapps.net';
+
+function buildAiconLoginUrl() {
+  const bytes = crypto.getRandomValues(new Uint8Array(24));
+  const state = btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_');
+  const params = new URLSearchParams({
+    client_id: AICON_CLIENT_ID,
+    redirect_uri: AICON_REDIRECT_URI,
+    state,
+  });
+  return `${AICON_LOGIN_URL}?${params}`;
+}
+
 // 인증 오류 페이지 표시
 function showAuthError() {
+  document.getElementById('authErrorLoginLink').href = buildAiconLoginUrl();
   document.getElementById('authErrorOverlay').classList.add('active');
 }
 
@@ -3161,8 +3178,10 @@ async function initAiconMode() {
 
     // 이력 로드 (사이드바는 기본적으로 접혀있음)
     loadHistory(USER_KEY);
+  } else if (location.origin === AICON_REDIRECT_URI) {
+    location.replace(buildAiconLoginUrl());
   } else {
-    console.log('[DEBUG] AICON 모드 비활성 - 익명 사용자');
+    console.log('[DEBUG] AICON 모드 비활성 - 익명 사용자 (로컬 개발)');
   }
 }
 
