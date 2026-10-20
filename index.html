@@ -1078,6 +1078,9 @@
       margin: 0 auto 2rem;
       color: var(--danger);
     }
+    .auth-error-overlay.notice .auth-error-icon {
+      color: var(--indigo);
+    }
     .auth-error-title {
       font-size: 1.75rem;
       font-weight: 700;
@@ -1553,8 +1556,8 @@
         <line x1="12" y1="16" x2="12.01" y2="16"></line>
       </svg>
     </div>
-    <h1 class="auth-error-title">인증이 만료되었습니다</h1>
-    <p class="auth-error-description">
+    <h1 class="auth-error-title" id="authErrorTitle">인증이 만료되었습니다</h1>
+    <p class="auth-error-description" id="authErrorDesc">
       AICON 로그인이 필요합니다.<br>
       아래 버튼을 클릭하여 다시 로그인해주세요.
     </p>
@@ -2334,6 +2337,18 @@ function buildAiconLoginUrl() {
 function showAuthError() {
   document.getElementById('authErrorLoginLink').href = buildAiconLoginUrl();
   document.getElementById('authErrorOverlay').classList.add('active');
+}
+
+// 로그인 정보가 없을 때의 안내 페이지 표시
+function showLoginRequired() {
+  const overlay = document.getElementById('authErrorOverlay');
+  overlay.classList.add('notice', 'active');
+  document.getElementById('authErrorTitle').textContent = 'AICON 로그인이 필요합니다';
+  document.getElementById('authErrorDesc').innerHTML =
+    'AICON에 로그인한 후 이용할 수 있어요.<br>아래 버튼을 누르면 로그인 후 이 페이지로 바로 돌아옵니다.';
+  const link = document.getElementById('authErrorLoginLink');
+  link.textContent = 'AICON 로그인';
+  link.href = buildAiconLoginUrl();
 }
 
 // 사이드바 토글
@@ -3179,7 +3194,7 @@ async function initAiconMode() {
     // 이력 로드 (사이드바는 기본적으로 접혀있음)
     loadHistory(USER_KEY);
   } else if (location.origin === AICON_REDIRECT_URI) {
-    location.replace(buildAiconLoginUrl());
+    showLoginRequired();
   } else {
     console.log('[DEBUG] AICON 모드 비활성 - 익명 사용자 (로컬 개발)');
   }
